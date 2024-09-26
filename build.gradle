@@ -2,7 +2,19 @@ plugins {
     id 'java'
     id 'maven-publish'
 }
-
+publishing {
+    publications {
+        mavenJava(MavenPublication) {
+            from components.java
+            groupId = 'org.waterwood'
+            artifactId = 'WaterAPI'
+            version = '1.0-SNAPSHOT'
+        }
+    }
+    repositories {
+        mavenLocal() // 发布到本地 Maven 仓库
+    }
+}
 group = 'org.waterwood'
 version = '1.0-SNAPSHOT'
 
