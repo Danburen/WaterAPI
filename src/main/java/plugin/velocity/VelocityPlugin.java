@@ -1,8 +1,8 @@
-package org.waterwood.plugin.velocity;
+package plugin.velocity;
 
 import com.velocitypowered.api.proxy.Player;
 import com.velocitypowered.api.proxy.ProxyServer;
-import org.waterwood.plugin.WaterPlugin;
+import plugin.WaterPlugin;
 
 import java.util.ArrayList;
 import java.util.List;

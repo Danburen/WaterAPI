@@ -1,4 +1,4 @@
-package org.waterwood.io.web;
+package io.web;
 
 import java.io.*;
 import java.net.HttpURLConnection;

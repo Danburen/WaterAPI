@@ -1,4 +1,4 @@
-package org.waterwood.io.web;
+package io.web;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;

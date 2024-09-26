@@ -1,4 +1,4 @@
-package org.waterwood.io;
+package io;
 
 import org.yaml.snakeyaml.DumperOptions;
 import org.yaml.snakeyaml.Yaml;

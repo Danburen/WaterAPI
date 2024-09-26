@@ -1,4 +1,4 @@
-package org.waterwood.io;
+package io;
 
 import java.io.*;
 import java.net.URL;

@@ -1,4 +1,4 @@
-package org.waterwood.plugin.bukkit;
+package plugin.bukkit;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
