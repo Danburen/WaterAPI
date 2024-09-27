@@ -1,2 +1,8 @@
+version: 2.0
+
 jdk:
-  - openjdk:17
+  version: openjdk17
+
+build:
+  commands:
+    - ./gradlew clean assemble publish
