@@ -1,8 +1,6 @@
 version: 2.0
 
-jdk:
-  version: openjdk17
-
 build:
+  jdk: openjdk17  # 直接指定 JDK 版本
   commands:
     - ./gradlew clean assemble publish
