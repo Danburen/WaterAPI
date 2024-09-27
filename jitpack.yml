@@ -1,7 +1,6 @@
 version: 2.0
 
 build:
-  docker:
-    image: openjdk:17
+  jdk: openjdk17  # 指定使用 OpenJDK 17
   commands:
-    - ./gradlew clean build publishToMavenLocal
+    - ./gradlew clean assemble publish  # 构建和发布的命令
