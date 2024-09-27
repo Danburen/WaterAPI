@@ -1,8 +1,2 @@
-version: 2.0
-build:
-  docker:
-    image: openjdk:17  # 选择适当的 JDK 版本
-  commands:
-    - ./gradlew clean build publishToMavenLocal  # 清理并构建项目，然后发布到本地 Maven 仓库
-  artifacts:
-    - build/libs/*.jar  # 指定要上传的构建产物
+jdk:
+  - openjdk:17

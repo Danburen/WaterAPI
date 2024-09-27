@@ -1,4 +1,4 @@
-package common;
+package org.waterwood.common;
 
 import java.util.Map;
 import java.util.regex.Matcher;

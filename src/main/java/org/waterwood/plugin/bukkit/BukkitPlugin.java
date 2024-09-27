@@ -1,9 +1,11 @@
-package plugin;
+package org.waterwood.plugin.bukkit;
 
-import common.Colors;
-import common.LineFontGenerator;
-import io.FileConfigProcess;
-import io.web.Updater;
+import org.waterwood.common.LineFontGenerator;
+import org.waterwood.io.FileConfigProcess;
+import org.waterwood.io.web.Updater;
+import org.bukkit.plugin.java.JavaPlugin;
+import org.waterwood.common.Colors;
+import org.waterwood.plugin.Plugin;
 
 import java.io.IOException;
 import java.util.HashMap;
@@ -11,34 +13,30 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.logging.Logger;
 
-
-public abstract class WaterPlugin  implements Plugin {
+public class BukkitPlugin extends JavaPlugin implements Plugin {
     private static Logger logger;
     private static final FileConfigProcess config = new FileConfigProcess();
     private static final FileConfigProcess pluginMessages = new FileConfigProcess();
-    private static final Map<String,FileConfigProcess>  messages = new HashMap<>();
+    private static final Map<String,FileConfigProcess> messages = new HashMap<>();
     private static  FileConfigProcess pluginData;
     private static boolean locale = false;
     public void initialization(){
         if(pluginData == null){
             try {
                 pluginData = new FileConfigProcess();
-                pluginData.loadSource("plugin", "yml");
+                pluginData.loadSource("org/waterwood/plugin", "yml");
             }catch (IOException e){
                 Logger.getLogger(this.getClass().getName()).warning("Plugin not founded");
             }
         }
         if (logger == null){ logger = Logger.getLogger(getPluginInfo("name"));}
     }
-    public WaterPlugin(){
+    public BukkitPlugin(){
         initialization();
     }
-    public static Logger getLogger(){
-        return logger;
-    }
 
-    public void logMsg(String message){
-        logger.info(Colors.parseColor(message,false));
+    public static void logMsg(String message){
+        logger.info(Colors.parseColor(message));
     }
 
     public static FileConfigProcess getConfigs(){
@@ -50,22 +48,27 @@ public abstract class WaterPlugin  implements Plugin {
     public String getPluginName(){
         return getPluginInfo("name");
     }
-    public String getDefaultFilePath(String filePath){
-        return config.getPluginFilePath(getPluginName(), filePath);
+    @Override
+    public String getDefaultFilePath(String file){
+        return config.getJarDir() + "\\" +getPluginName() + "\\" + file;
     }
-
+    public String getPluginFilePath(String fileName){
+        return getDataFolder() + "\\" + fileName;
+    }
+    public static String getPluginInfo(String path){
+        return pluginData.getString(path);
+    }
     @Override
     public void loadConfig(boolean loadMessage){
         String lang = Locale.getDefault().getLanguage();
         try {
-            config.createFileByDir("config",getPluginName());
-            config.loadFile(getDefaultFilePath("config.yml"));
+            config.createFileByPath("config",getDataFolder().toString());
+            config.loadFile(getPluginFilePath("config.yml"));
             pluginMessages.loadSource("locale/" + lang , "properties");
-            if(loadMessage) {
-                locale = "locale".equals(config.getString("player-locale"));
-                loadLocalMsg(lang,loadMessage);
-            }
+            locale = "locale".equals(config.getString("player-locale"));
+            if(loadMessage) {loadLocalMsg(lang,loadMessage);}
         }catch(Exception e){
+            e.printStackTrace();
             getLogger().warning("Error when load config file, missing lang:" + lang + "\nUsing default lang en");
             loadDefaultSource("en");
         }
@@ -79,7 +82,7 @@ public abstract class WaterPlugin  implements Plugin {
     public void reloadConfig(){
         String lang = config.getString("locale");
         try {
-            config.loadFile(getDefaultFilePath("config.yml"));
+            config.loadFile(getPluginFilePath("config.yml"));
             locale = "locale".equals(config.getString("player-locale"));
             pluginMessages.loadSource("locale/" + lang , "properties");
         }catch(Exception e){
@@ -90,7 +93,7 @@ public abstract class WaterPlugin  implements Plugin {
 
     public void reloadConfig(String dataName) throws IOException{
         switch (dataName) {
-            case "config" -> config.loadFile(getDefaultFilePath("config.yml"));
+            case "config" -> config.loadFile(getPluginFilePath("config.yml"));
             case "message" -> pluginMessages.loadSource("locale/" + config.getString("locale"), "properties");
             default -> reloadConfig();
         }
@@ -98,8 +101,8 @@ public abstract class WaterPlugin  implements Plugin {
 
     public void loadLocalMsg(String lang, boolean  load) throws IOException {
         if(load) {
-            config.createFileByDir("message", getPluginName());
-            messages.put(lang, new FileConfigProcess().loadFile(getDefaultFilePath("message.yml")));
+            config.createFileByPath("message", getDataFolder().toString());
+            messages.put(lang, new FileConfigProcess().loadFile(getPluginFilePath("message.yml")));
         }
     }
 
@@ -159,12 +162,14 @@ public abstract class WaterPlugin  implements Plugin {
             logger.warning(pluginMessages.getString("fail-find-local-message").formatted(lang));
         }
     }
+
     public static String getMessage(String key,String lang) {
         return locale ? messages.get(lang).getString(key) : getMessage(key);
     }
     public static String getMessage(String key){return messages.get(Locale.getDefault().getLanguage()).getString(key);}
-    public static String getPluginInfo(String key){
-        return (String)pluginData.get(key);
+    public static String getPluginInfo(){
+        return "§6§l%s§r §ev§7%s§r".formatted(getPluginInfo("name"), getPluginInfo("version")) +
+                "§6§l by: §7%s".formatted( getPluginInfo("author"));
     }
     public void showPluginTitle(String lineTitleDisplay){
         for(String str : LineFontGenerator.parseLineText(lineTitleDisplay)) {
@@ -172,9 +177,5 @@ public abstract class WaterPlugin  implements Plugin {
         }
         logMsg("§e%s §6author:§7%s §6version:§7%s".formatted(getPluginInfo("name")
                 , getPluginInfo("author"), getPluginInfo("version")));
-    }
-    public static String getPluginInfo(){
-        return "§6§l%s§r §ev§7%s§r".formatted(getPluginInfo("name"), getPluginInfo("version")) +
-                "§6§l by: §7%s".formatted( getPluginInfo("author"));
     }
 }

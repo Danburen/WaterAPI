@@ -1,4 +1,4 @@
-package io;
+package org.waterwood.io;
 
 
 public interface FileConfigBase {

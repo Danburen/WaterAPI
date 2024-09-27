@@ -1,4 +1,4 @@
-package common;
+package org.waterwood.common;
 
 
 import java.util.Arrays;

@@ -1,4 +1,4 @@
-package plugin;
+package org.waterwood.plugin;
 
 import java.util.logging.Logger;
 
