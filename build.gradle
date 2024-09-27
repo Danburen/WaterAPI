@@ -31,6 +31,7 @@ dependencies {
     testImplementation platform('org.junit:junit-bom:5.9.1')
     testImplementation 'org.junit.jupiter:junit-jupiter'
     implementation 'com.google.code.gson:gson:2.10.1'
+    implementation 'net.luckperms:api:5.4'
     compileOnly 'com.velocitypowered:velocity-api:3.3.0-SNAPSHOT'
     compileOnly "io.papermc.paper:paper-api:1.20-R0.1-SNAPSHOT"
 }
