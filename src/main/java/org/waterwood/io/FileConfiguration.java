@@ -55,11 +55,11 @@ public abstract class FileConfiguration extends MemoryProcess implements FileCon
     }
 
     public void createFileByDir(String fileName, String pluginName) throws FileNotFoundException {
-        createFileByPath(fileName,getJarDir() + "\\" + pluginName);
+        createFileByPath(fileName,getJarDir() + "/" + pluginName);
     }
     public void createFileByPath(String fileName,String path) throws FileNotFoundException{
         String source = fileName + "/" + Locale.getDefault().getLanguage() + ".yml";
-        String targetPath = path + "\\" + fileName + ".yml";
+        String targetPath = path + "/" + fileName + ".yml";
         if(isResourceExist(source)) {
             extractResource(targetPath, source);
         }else{

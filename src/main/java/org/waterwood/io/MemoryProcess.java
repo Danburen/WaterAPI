@@ -26,7 +26,7 @@ public abstract class MemoryProcess {
             String line;
             while((line = reader.readLine())!= null){
                 if(line.startsWith(splitStr)){
-                    String subFilePath = targetFilesPath +"\\" + line.substring(line.indexOf(":") + 1);
+                    String subFilePath = targetFilesPath +"/" + line.substring(line.indexOf(":") + 1);
                     File subFile = new File(subFilePath);
                     if(subFile.exists()){
                         while((line = reader.readLine()) != null){    //locate to next ####(####FILE_END)
@@ -107,7 +107,7 @@ public abstract class MemoryProcess {
         }
     }
     public String getPluginFilePath(String  PluginName, String FileName){
-        return getJarDir() + "\\" +PluginName + "\\" + FileName;
+        return getJarDir() + "/" +PluginName + "/" + FileName;
     }
     public boolean isResourceExist(String source){
         URL sourceURL = getClass().getClassLoader().getResource(source);

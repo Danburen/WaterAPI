@@ -23,7 +23,7 @@ public abstract class WaterPlugin  implements Plugin {
         if(pluginData == null){
             try {
                 pluginData = new FileConfigProcess();
-                pluginData.loadSource("org/waterwood/plugin", "yml");
+                pluginData.loadSource("plugin", "yml");
             }catch (IOException e){
                 Logger.getLogger(this.getClass().getName()).warning("Plugin not founded");
             }
@@ -129,7 +129,7 @@ public abstract class WaterPlugin  implements Plugin {
                     if(Boolean.TRUE.equals(config.get("check-update.auto-download"))){
                         String link = (String) updateInfo.get("downloadLink");
                         logMsg(getPluginMessage("new-version-download-message").formatted(updateInfo.get("latestVersion")));
-                        String pathDownload = config.getJarDir() + "\\" + getPluginName() + updateInfo.get("latestVersion") +".jar";
+                        String pathDownload = config.getJarDir() + "/" + getPluginName() + updateInfo.get("latestVersion") +".jar";
                         Updater.downloadFile(link, pathDownload).thenAccept(
                                 result -> {
                                     if(result){
