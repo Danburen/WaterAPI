@@ -1,10 +1,12 @@
 package org.waterwood.io;
 
+import org.waterwood.plugin.WaterPlugin;
 import org.yaml.snakeyaml.DumperOptions;
 import org.yaml.snakeyaml.Yaml;
 
 import java.io.*;
 import java.nio.charset.StandardCharsets;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
@@ -59,14 +61,9 @@ public class FileConfigProcess extends FileConfiguration {
         }
         return this;
     }
-    @Override
-    public void loadSource(String source,String extension) throws IOException {
-        data = getSourceMapData(source,extension);
-    }
-
-    public Map<String,Object> getSourceMapData(String sourcePathName,String extension) throws  IOException{
-        String filePath = "/"  + sourcePathName + "." + extension;
-        try(InputStream IS = getClass().getResourceAsStream(filePath)){
+    public Map<String,Object> getSourceMapData(String source) throws  IOException{
+        String extension = source.substring(source.lastIndexOf(".") + 1);
+        try(InputStream IS = getClass().getResourceAsStream(source)){
             if(extension.equals("yml")) {
                 return  yaml.load(IS);
             }else if(extension.equals("properties")){
@@ -82,10 +79,11 @@ public class FileConfigProcess extends FileConfiguration {
         }
     }
     @Override
-    public void loadSource(String sourceFilePath) throws IOException {
-        String extension = sourceFilePath.substring(sourceFilePath.lastIndexOf(".")+1);
-        String filePath = sourceFilePath.substring(0,sourceFilePath.lastIndexOf("."));
-        data = getSourceMapData(filePath,extension);
+    public void loadSource(String... paths) throws IOException {
+        if (data == null) data = new HashMap<>();
+        for(String path : paths){
+            data.putAll(getSourceMapData("/" + path));
+        }
     }
 
     @Override
@@ -126,6 +124,10 @@ public class FileConfigProcess extends FileConfiguration {
             }
         }
         return currentData;
+    }
+
+    public void putAll(Map<String,Object> data){
+        this.data.putAll(data);
     }
 
     public static DumperOptions getDumperOptions(){

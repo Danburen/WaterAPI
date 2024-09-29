@@ -18,11 +18,7 @@ public class VelocityPlugin extends WaterPlugin {
     }
 
     public static List<String> getAllPlayerName(){
-        List<String> players = new ArrayList<>();
-        for(Player player: server.getAllPlayers()){
-            players.add(player.getUsername());
-        }
-        return players;
+        return  server.getAllPlayers().stream().map(Player::getUsername).toList();
     }
 
 }

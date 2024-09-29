@@ -1,11 +1,11 @@
-package org.waterwood.api;
+package org.waterwood.hock;
 
 import net.luckperms.api.LuckPerms;
 import net.luckperms.api.LuckPermsProvider;
 import net.luckperms.api.model.group.Group;
 import net.luckperms.api.model.user.User;
 
-public abstract class LuckPermsAPI implements APIBase{
+public abstract class LuckPermsHock implements HockBase {
     private static boolean hasLuckPerms = false;
     private static LuckPerms api = null;
     public static void checkApi(){

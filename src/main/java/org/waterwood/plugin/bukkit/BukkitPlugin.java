@@ -6,6 +6,7 @@ import org.waterwood.io.web.Updater;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.waterwood.common.Colors;
 import org.waterwood.plugin.Plugin;
+import org.waterwood.plugin.WaterPlugin;
 
 import java.io.IOException;
 import java.util.HashMap;
@@ -24,7 +25,7 @@ public class BukkitPlugin extends JavaPlugin implements Plugin {
         if(pluginData == null){
             try {
                 pluginData = new FileConfigProcess();
-                pluginData.loadSource("org/waterwood/plugin", "yml");
+                pluginData.loadSource("plugin.yml");
             }catch (IOException e){
                 Logger.getLogger(this.getClass().getName()).warning("Plugin not founded");
             }
@@ -55,20 +56,18 @@ public class BukkitPlugin extends JavaPlugin implements Plugin {
     public String getPluginFilePath(String fileName){
         return getDataFolder() + "\\" + fileName;
     }
-    public static String getPluginInfo(String path){
-        return pluginData.getString(path);
-    }
     @Override
     public void loadConfig(boolean loadMessage){
         String lang = Locale.getDefault().getLanguage();
         try {
             config.createFileByPath("config",getDataFolder().toString());
-            config.loadFile(getPluginFilePath("config.yml"));
-            pluginMessages.loadSource("locale/" + lang , "properties");
-            locale = "locale".equals(config.getString("player-locale"));
-            if(loadMessage) {loadLocalMsg(lang,loadMessage);}
+            config.createFileByPath("message",getDataFolder().toString());
+            loadConfig(lang);
+            if(loadMessage) {
+                locale = "locale".equals(config.getString("player-locale"));
+                loadLocalMsg(lang, true);
+            }
         }catch(Exception e){
-            e.printStackTrace();
             getLogger().warning("Error when load config file, missing lang:" + lang + "\nUsing default lang en");
             loadDefaultSource("en");
         }
@@ -78,23 +77,24 @@ public class BukkitPlugin extends JavaPlugin implements Plugin {
         loadConfig(true);
     }
 
+    public void loadConfig(String lang) throws  Exception{
+            config.loadFile(getDefaultFilePath("config.yml"));
+            locale = "locale".equals(config.getString("player-locale"));
+            pluginMessages.loadSource("locale/" + lang +  ".properties", "default/" + lang + ".properties");
+    }
     @Override
     public void reloadConfig(){
-        String lang = config.getString("locale");
         try {
-            config.loadFile(getPluginFilePath("config.yml"));
-            locale = "locale".equals(config.getString("player-locale"));
-            pluginMessages.loadSource("locale/" + lang , "properties");
-        }catch(Exception e){
-            logger.warning("Error when load config file, missing lang:" + lang + "\nUsing default lang en");
-            loadDefaultSource("en");
+            loadConfig(config.getString("locale"));
+        }catch (Exception e){
+            logger.warning("Error when reloading config,Please check config file!");
         }
     }
 
     public void reloadConfig(String dataName) throws IOException{
         switch (dataName) {
             case "config" -> config.loadFile(getPluginFilePath("config.yml"));
-            case "message" -> pluginMessages.loadSource("locale/" + config.getString("locale"), "properties");
+            case "message" -> pluginMessages.loadSource("locale/" + config.getString("locale")+ ".properties");
             default -> reloadConfig();
         }
     }
@@ -114,7 +114,7 @@ public class BukkitPlugin extends JavaPlugin implements Plugin {
     @Override
     public void loadDefaultSource(String lang){
         try {
-            config.loadSource(getDefaultSourcePath("config","yml","en"));
+            config.loadSource("config/en.yml");
             pluginMessages.loadSource("locale/en.properties");
         }catch (IOException e){
             getLogger().warning("Source not founded!");
@@ -132,7 +132,7 @@ public class BukkitPlugin extends JavaPlugin implements Plugin {
                     if(Boolean.TRUE.equals(config.get("check-update.auto-download"))){
                         String link = (String) updateInfo.get("downloadLink");
                         logMsg(getPluginMessage("new-version-download-message").formatted(updateInfo.get("latestVersion")));
-                        String pathDownload = config.getJarDir() + "\\" + getPluginName() + updateInfo.get("latestVersion") +".jar";
+                        String pathDownload = "plugins/" + getPluginName() + updateInfo.get("latestVersion") +".jar";
                         Updater.downloadFile(link, pathDownload).thenAccept(
                                 result -> {
                                     if(result){
@@ -153,6 +153,20 @@ public class BukkitPlugin extends JavaPlugin implements Plugin {
             }
         });
     }
+    @Override
+    public void checkUpdate(String owner, String repositories, String configVersion){
+        checkUpdate(owner,repositories);
+        String configText = getConfigs().getString("config-version");
+        try{
+            final double CONFIG_VERSION = Updater.parseVersion(configText);
+            final double AVAILABLE_VERSION = Updater.parseVersion(configVersion);
+            if(AVAILABLE_VERSION > CONFIG_VERSION){
+                logger.warning(getPluginMessage("config-file-out-date-message"));
+            }
+        }catch (NullPointerException e){
+            logger.warning(getPluginMessage("config-file-out-date-message"));
+        }
+    }
     public void loadLocale(String lang){
         if(messages.containsKey(lang)) return;
         try {
@@ -162,14 +176,12 @@ public class BukkitPlugin extends JavaPlugin implements Plugin {
             logger.warning(pluginMessages.getString("fail-find-local-message").formatted(lang));
         }
     }
-
     public static String getMessage(String key,String lang) {
         return locale ? messages.get(lang).getString(key) : getMessage(key);
     }
     public static String getMessage(String key){return messages.get(Locale.getDefault().getLanguage()).getString(key);}
-    public static String getPluginInfo(){
-        return "§6§l%s§r §ev§7%s§r".formatted(getPluginInfo("name"), getPluginInfo("version")) +
-                "§6§l by: §7%s".formatted( getPluginInfo("author"));
+    public static String getPluginInfo(String key){
+        return (String)pluginData.get(key);
     }
     public void showPluginTitle(String lineTitleDisplay){
         for(String str : LineFontGenerator.parseLineText(lineTitleDisplay)) {
@@ -178,4 +190,9 @@ public class BukkitPlugin extends JavaPlugin implements Plugin {
         logMsg("§e%s §6author:§7%s §6version:§7%s".formatted(getPluginInfo("name")
                 , getPluginInfo("author"), getPluginInfo("version")));
     }
+    public static String getPluginInfo(){
+        return "§6%s§r §ev§7%s§r".formatted(getPluginInfo("name"), getPluginInfo("version")) +
+                "§6 by: §7%s".formatted( getPluginInfo("author"));
+    }
+
 }

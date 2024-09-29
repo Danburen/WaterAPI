@@ -1,31 +1,30 @@
 package org.waterwood.common;
 
+import org.jetbrains.annotations.Debug;
+
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public abstract class Colors {
-
-    protected static final Pattern PATTERN = Pattern.compile("§[0-9a-fA-Fr]");
-
-    protected static final String BLACK = "\u001B[30m";
-    protected static final String DARK_RED = "\u001B[31m";
-    protected static final String DARK_GREEN = "\u001B[32m";
-    protected static final String GOLD = "\u001B[33m";
-    protected static final String DARK_BLUE = "\u001B[34m";
-    protected static final String DARK_PURPLE = "\u001B[35m";
-    protected static final String DARK_AQUA = "\u001B[36m";
-    protected static final String GRAY = "\u001B[37m";
-    protected static final String DARK_GRAY = "\u001B[90m";
-    protected static final String RED = "\u001B[91m";
-    protected static final String GREEN = "\u001B[92m";
-    protected static final String YELLOW = "\u001B[93m";
-    protected static final String BLUE = "\u001B[94m";
-    protected static final String LIGHT_PURPLE = "\u001B[95m";
-    protected static final String AQUA = "\u001B[96m";
-    protected static final String WHITE = "\u001B[97m";
-    protected static final String RESET = "\u001B[0m";
-
+    private static final Pattern PATTERN = Pattern.compile("§[0-9a-fA-Fr]");
+    private static final String BLACK = "\u001B[30m";
+    private static final String DARK_RED = "\u001B[31m";
+    private static final String DARK_GREEN = "\u001B[32m";
+    private static final String GOLD = "\u001B[33m";
+    private static final String DARK_BLUE = "\u001B[34m";
+    private static final String DARK_PURPLE = "\u001B[35m";
+    private static final String DARK_AQUA = "\u001B[36m";
+    private static final String GRAY = "\u001B[37m";
+    private static final String DARK_GRAY = "\u001B[90m";
+    private static final String RED = "\u001B[91m";
+    private static final String GREEN = "\u001B[92m";
+    private static final String YELLOW = "\u001B[93m";
+    private static final String BLUE = "\u001B[94m";
+    private static final String LIGHT_PURPLE = "\u001B[95m";
+    private static final String AQUA = "\u001B[96m";
+    private static final String WHITE = "\u001B[97m";
+    private static final String RESET = "\u001B[0m";
     protected static final Map<String, String> COLOR_MAP = Map.ofEntries(
             Map.entry("§0", BLACK), Map.entry("§1", DARK_BLUE),
             Map.entry("§2", DARK_GREEN), Map.entry("§3", DARK_AQUA), Map.entry("§4", DARK_RED),
@@ -34,7 +33,6 @@ public abstract class Colors {
             Map.entry("§b", AQUA), Map.entry("§c", RED), Map.entry("§d", LIGHT_PURPLE),
             Map.entry("§e", YELLOW), Map.entry("§f", WHITE), Map.entry("§r", RESET)
     );
-
     /**
      * Parses {@link Colors color-code} to show in the terminal.
      * Original text contains code §.
