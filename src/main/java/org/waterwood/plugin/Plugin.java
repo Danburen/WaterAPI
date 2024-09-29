@@ -23,4 +23,6 @@ public interface Plugin {
 
     void reloadConfig();
     void checkUpdate(String owner, String repositories);
+
+    void checkUpdate(String owner, String repositories, String configVersion);
 }

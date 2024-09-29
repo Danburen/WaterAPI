@@ -11,12 +11,8 @@ public abstract class FileConfiguration extends MemoryProcess implements FileCon
     public abstract void set(String path, Object val);
     public abstract void save(File file,Map<String,Object> data) throws Exception;
     public abstract Map<String,Object> getFileMapData(String filePath) throws IOException;
-
     public abstract FileConfigProcess reload(String resourcePath) throws IOException;
-
-    public abstract void loadSource(String source, String extension) throws IOException;
-
-    public abstract void loadSource(String sourcePath) throws IOException;
+    public abstract void loadSource(String... path) throws IOException;
     public final Map<String,String> getMap(String path){
         return  getMap(path,String.class);
     }

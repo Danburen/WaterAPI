@@ -23,7 +23,7 @@ public abstract class WaterPlugin  implements Plugin {
         if(pluginData == null){
             try {
                 pluginData = new FileConfigProcess();
-                pluginData.loadSource("plugin", "yml");
+                pluginData.loadSource("plugin.yml");
             }catch (IOException e){
                 Logger.getLogger(this.getClass().getName()).warning("Plugin not founded");
             }
@@ -59,11 +59,11 @@ public abstract class WaterPlugin  implements Plugin {
         String lang = Locale.getDefault().getLanguage();
         try {
             config.createFileByDir("config",getPluginName());
-            config.loadFile(getDefaultFilePath("config.yml"));
-            pluginMessages.loadSource("locale/" + lang , "properties");
+            config.createFileByDir("message",getPluginName());
+            loadConfig(lang);
             if(loadMessage) {
                 locale = "locale".equals(config.getString("player-locale"));
-                loadLocalMsg(lang,loadMessage);
+                loadLocalMsg(lang, true);
             }
         }catch(Exception e){
             getLogger().warning("Error when load config file, missing lang:" + lang + "\nUsing default lang en");
@@ -75,23 +75,24 @@ public abstract class WaterPlugin  implements Plugin {
         loadConfig(true);
     }
 
-    @Override
-    public void reloadConfig(){
-        String lang = config.getString("locale");
-        try {
+    public void loadConfig(String lang) throws  Exception{
             config.loadFile(getDefaultFilePath("config.yml"));
             locale = "locale".equals(config.getString("player-locale"));
-            pluginMessages.loadSource("locale/" + lang , "properties");
-        }catch(Exception e){
-            logger.warning("Error when load config file, missing lang:" + lang + "\nUsing default lang en");
-            loadDefaultSource("en");
+            pluginMessages.loadSource("locale/" + lang +  ".properties", "default/" + lang + ".properties");
+    }
+    @Override
+    public void reloadConfig(){
+        try {
+            loadConfig(config.getString("locale"));
+        }catch (Exception e){
+            logger.warning("Error when reloading config,Please check config file!");
         }
     }
 
     public void reloadConfig(String dataName) throws IOException{
         switch (dataName) {
             case "config" -> config.loadFile(getDefaultFilePath("config.yml"));
-            case "message" -> pluginMessages.loadSource("locale/" + config.getString("locale"), "properties");
+            case "message" -> pluginMessages.loadSource("locale/" + config.getString("locale")+ ".properties");
             default -> reloadConfig();
         }
     }
@@ -111,7 +112,7 @@ public abstract class WaterPlugin  implements Plugin {
     @Override
     public void loadDefaultSource(String lang){
         try {
-            config.loadSource(getDefaultSourcePath("config","yml","en"));
+            config.loadSource("config/en.yml");
             pluginMessages.loadSource("locale/en.properties");
         }catch (IOException e){
             getLogger().warning("Source not founded!");
@@ -129,7 +130,7 @@ public abstract class WaterPlugin  implements Plugin {
                     if(Boolean.TRUE.equals(config.get("check-update.auto-download"))){
                         String link = (String) updateInfo.get("downloadLink");
                         logMsg(getPluginMessage("new-version-download-message").formatted(updateInfo.get("latestVersion")));
-                        String pathDownload = config.getJarDir() + "/" + getPluginName() + updateInfo.get("latestVersion") +".jar";
+                        String pathDownload = "plugins/" + getPluginName() + updateInfo.get("latestVersion") +".jar";
                         Updater.downloadFile(link, pathDownload).thenAccept(
                                 result -> {
                                     if(result){
@@ -149,6 +150,20 @@ public abstract class WaterPlugin  implements Plugin {
                 }
             }
         });
+    }
+    @Override
+    public void checkUpdate(String owner, String repositories, String configVersion){
+        checkUpdate(owner,repositories);
+        String configText = getConfigs().getString("config-version");
+        try{
+            final double CONFIG_VERSION = Updater.parseVersion(configText);
+            final double AVAILABLE_VERSION = Updater.parseVersion(configVersion);
+            if(AVAILABLE_VERSION > CONFIG_VERSION){
+                logger.warning(getPluginMessage("config-file-out-date-message"));
+            }
+        }catch (NullPointerException e){
+            logger.warning(getPluginMessage("config-file-out-date-message"));
+        }
     }
     public void loadLocale(String lang){
         if(messages.containsKey(lang)) return;
@@ -174,7 +189,7 @@ public abstract class WaterPlugin  implements Plugin {
                 , getPluginInfo("author"), getPluginInfo("version")));
     }
     public static String getPluginInfo(){
-        return "§6§l%s§r §ev§7%s§r".formatted(getPluginInfo("name"), getPluginInfo("version")) +
-                "§6§l by: §7%s".formatted( getPluginInfo("author"));
+        return "§6%s§r §ev§7%s§r".formatted(getPluginInfo("name"), getPluginInfo("version")) +
+                "§6 by: §7%s".formatted( getPluginInfo("author"));
     }
 }
