@@ -59,7 +59,6 @@ public abstract class WaterPlugin  implements Plugin {
         String lang = Locale.getDefault().getLanguage();
         try {
             config.createFileByDir("config",getPluginName());
-            config.createFileByDir("message",getPluginName());
             loadConfig(lang);
             if(loadMessage) {
                 locale = "locale".equals(config.getString("player-locale"));
