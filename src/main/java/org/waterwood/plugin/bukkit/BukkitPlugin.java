@@ -51,17 +51,13 @@ public class BukkitPlugin extends JavaPlugin implements Plugin {
     }
     @Override
     public String getDefaultFilePath(String file){
-        return config.getJarDir() + "\\" +getPluginName() + "\\" + file;
-    }
-    public String getPluginFilePath(String fileName){
-        return getDataFolder() + "\\" + fileName;
+        return getDataFolder() + "\\" + file;
     }
     @Override
     public void loadConfig(boolean loadMessage){
         String lang = Locale.getDefault().getLanguage();
         try {
             config.createFileByPath("config",getDataFolder().toString());
-            config.createFileByPath("message",getDataFolder().toString());
             loadConfig(lang);
             if(loadMessage) {
                 locale = "locale".equals(config.getString("player-locale"));
@@ -93,7 +89,7 @@ public class BukkitPlugin extends JavaPlugin implements Plugin {
 
     public void reloadConfig(String dataName) throws IOException{
         switch (dataName) {
-            case "config" -> config.loadFile(getPluginFilePath("config.yml"));
+            case "config" -> config.loadFile(getDefaultFilePath("config.yml"));
             case "message" -> pluginMessages.loadSource("locale/" + config.getString("locale")+ ".properties");
             default -> reloadConfig();
         }
@@ -102,7 +98,7 @@ public class BukkitPlugin extends JavaPlugin implements Plugin {
     public void loadLocalMsg(String lang, boolean  load) throws IOException {
         if(load) {
             config.createFileByPath("message", getDataFolder().toString());
-            messages.put(lang, new FileConfigProcess().loadFile(getPluginFilePath("message.yml")));
+            messages.put(lang, new FileConfigProcess().loadFile(getDefaultFilePath("message.yml")));
         }
     }
 
