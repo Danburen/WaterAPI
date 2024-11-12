@@ -63,6 +63,11 @@ public abstract class Updater extends WebIO {
         });
     }
 
+    /**
+     * parse dotStr like(1.x.x) to double version value -> 1.xx
+     * @param dotStr String that contains dot.
+     * @return double version
+     */
     public static double parseVersion(String dotStr){
         int dotInd = dotStr.indexOf(".");
         String out;

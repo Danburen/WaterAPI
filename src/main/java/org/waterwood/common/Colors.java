@@ -1,7 +1,9 @@
 package org.waterwood.common;
 
 import org.jetbrains.annotations.Debug;
+import org.waterwood.consts.ColorCode;
 
+import java.awt.*;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -25,6 +27,8 @@ public abstract class Colors {
     private static final String AQUA = "\u001B[96m";
     private static final String WHITE = "\u001B[97m";
     private static final String RESET = "\u001B[0m";
+
+
     protected static final Map<String, String> COLOR_MAP = Map.ofEntries(
             Map.entry("§0", BLACK), Map.entry("§1", DARK_BLUE),
             Map.entry("§2", DARK_GREEN), Map.entry("§3", DARK_AQUA), Map.entry("§4", DARK_RED),
@@ -33,6 +37,52 @@ public abstract class Colors {
             Map.entry("§b", AQUA), Map.entry("§c", RED), Map.entry("§d", LIGHT_PURPLE),
             Map.entry("§e", YELLOW), Map.entry("§f", WHITE), Map.entry("§r", RESET)
     );
+    public static final Map<String, ColorCode> COLOR_MAP_MC = Map.ofEntries(
+            Map.entry("0", ColorCode.BLACK),
+            Map.entry("1", ColorCode.DARKBLUE),
+            Map.entry("2", ColorCode.DARK_GREEN),
+            Map.entry("3", ColorCode.DARK_AQUA),
+            Map.entry("4", ColorCode.DARK_RED),
+            Map.entry("5", ColorCode.DARK_PURPLE),
+            Map.entry("6", ColorCode.GOLD),
+            Map.entry("7", ColorCode.GRAY),
+            Map.entry("8", ColorCode.DARK_GRAY),
+            Map.entry("9", ColorCode.BLUE),
+            Map.entry("a", ColorCode.GREEN),
+            Map.entry("b", ColorCode.AQUA),
+            Map.entry("c", ColorCode.RED),
+            Map.entry("d", ColorCode.LIGHT_PURPLE),
+            Map.entry("e", ColorCode.YELLOW),
+            Map.entry("f", ColorCode.WHITE),
+            Map.entry("r", ColorCode.RESET)
+    );
+
+    public static String getColorCode(ColorCode color) {
+        return switch (color) {
+            case BLACK -> "0";
+            case DARKBLUE -> "1";
+            case DARK_GREEN -> "2";
+            case DARK_AQUA -> "3";
+            case DARK_RED -> "4";
+            case DARK_PURPLE -> "5";
+            case GOLD -> "6";
+            case GRAY -> "7";
+            case DARK_GRAY -> "8";
+            case BLUE -> "9";
+            case GREEN -> "a";
+            case AQUA -> "b";
+            case RED -> "c";
+            case LIGHT_PURPLE -> "d";
+            case YELLOW -> "e";
+            case WHITE -> "f";
+            case RESET -> "r";
+            default -> "r"; // default reset color
+        };
+    }
+    public static ColorCode getColorTitle(String ColorStr){
+        return COLOR_MAP_MC.getOrDefault(ColorStr.replaceAll("&|§",""),ColorCode.RESET);
+    }
+
     /**
      * Parses {@link Colors color-code} to show in the terminal.
      * Original text contains code §.
@@ -66,8 +116,55 @@ public abstract class Colors {
         }
         return result;
     }
+    //Only in minecraft use
+    private static String getRainbowColor(int index, int length) {
+        float hue = (index * 360.0f) / length; // hue
+        // hue to rgb
+        int rgb = Color.HSBtoRGB(hue / 360f, 1.0f, 1.0f);
+        // generate the minecraft color code
+        return String.format("§#%02x%02x%02x", (rgb >> 16) & 0xFF, (rgb >> 8) & 0xFF, rgb & 0xFF);
+    }
 
+    public static String applyRainbow(String input) {
+        StringBuilder rainbowText = new StringBuilder();
+        int length = input.length();
+
+        for (int i = 0; i < length; i++) {
+            String color = getRainbowColor(i, length); // get the color of each char
+            rainbowText.append(color).append(input.charAt(i)); // color the char
+        }
+
+        return rainbowText.toString();
+    }
     public static String parseColor(String origin) {
         return parseColor(origin, false);
+    }
+    public static String coloredText(String original,String colorCode){
+        return "§"+ colorCode +original + "§r";
+    }
+    public static String coloredText(String original,ColorCode color){
+        if(color == ColorCode.RAINBOW){
+            return applyRainbow(original);
+        }
+        String colorCode = getColorCode(color);
+        return coloredText(original, colorCode);
+    }
+
+    /**
+     * Color the texts by split with codes
+     * @param original original text
+     * @param split split string
+     * @param codes color codes to color text
+     * @return colored text
+     */
+    public static String coloredText(String original,String split,ColorCode... codes){
+        StringBuilder sb = new StringBuilder();
+        String[] children = original.split(split);
+        int n = children.length;
+        for(int i = 0 ; i < n ; i++){
+            sb.append(coloredText(children[i],codes[i % codes.length]));
+            sb.append(split);
+        }
+        return sb.toString();
     }
 }

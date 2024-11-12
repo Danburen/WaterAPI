@@ -1,6 +1,5 @@
 package org.waterwood.io;
 
-import org.waterwood.plugin.WaterPlugin;
 import org.yaml.snakeyaml.DumperOptions;
 import org.yaml.snakeyaml.Yaml;
 
@@ -42,10 +41,18 @@ public class FileConfigProcess extends FileConfiguration {
         data = getFileMapData(filePath);
         return this;
     }
+    public FileConfigProcess loadFile(File file) throws IOException{
+        data = getFileMapData(file);
+        return this;
+    }
 
     @Override
     public Map<String, Object> getFileMapData(String filePath) throws IOException {
         File file = new File(filePath);
+        return getFileMapData(file);
+    }
+    @Override
+    public Map<String,Object> getFileMapData(File file) throws IOException{
         try(InputStream FIS = new FileInputStream(file)){
             return yaml.load(FIS);
         }catch (IOException e){
@@ -89,6 +96,11 @@ public class FileConfigProcess extends FileConfiguration {
     @Override
     public final Object get(String path){
         return get(path,data);
+    }
+    @Override
+    public final Object get(String path,Object defaultVal){
+        Object val = get(path,data);
+        return val == null ? defaultVal : val;
     }
     public static Object get(String path,Map<String,Object> data){
         String[] keys = path.split("\\.");

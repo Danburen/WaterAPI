@@ -23,6 +23,11 @@ public abstract class LineFontGenerator {
     public static final String[] FUTURISTIC_BUILD_SPLIT = Arrays.stream(FUTURISTIC_BUILD_RAW).flatMap(
             s -> Arrays.stream(s.split("\n"))).toArray(String[]::new);
 
+    /**
+     * parse text to line shape text
+     * @param original source of text
+     * @return converted text
+     */
     public static String[] parseLineText(String original){
         char[] chars = original.toLowerCase().toCharArray();
         String[] temp = new String[4];
