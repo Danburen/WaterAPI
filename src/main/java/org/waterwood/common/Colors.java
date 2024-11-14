@@ -1,7 +1,6 @@
 package org.waterwood.common;
 
-import org.jetbrains.annotations.Debug;
-import org.waterwood.consts.ColorCode;
+import org.waterwood.consts.COLOR;
 
 import java.awt.*;
 import java.util.Map;
@@ -37,27 +36,27 @@ public abstract class Colors {
             Map.entry("§b", AQUA), Map.entry("§c", RED), Map.entry("§d", LIGHT_PURPLE),
             Map.entry("§e", YELLOW), Map.entry("§f", WHITE), Map.entry("§r", RESET)
     );
-    public static final Map<String, ColorCode> COLOR_MAP_MC = Map.ofEntries(
-            Map.entry("0", ColorCode.BLACK),
-            Map.entry("1", ColorCode.DARKBLUE),
-            Map.entry("2", ColorCode.DARK_GREEN),
-            Map.entry("3", ColorCode.DARK_AQUA),
-            Map.entry("4", ColorCode.DARK_RED),
-            Map.entry("5", ColorCode.DARK_PURPLE),
-            Map.entry("6", ColorCode.GOLD),
-            Map.entry("7", ColorCode.GRAY),
-            Map.entry("8", ColorCode.DARK_GRAY),
-            Map.entry("9", ColorCode.BLUE),
-            Map.entry("a", ColorCode.GREEN),
-            Map.entry("b", ColorCode.AQUA),
-            Map.entry("c", ColorCode.RED),
-            Map.entry("d", ColorCode.LIGHT_PURPLE),
-            Map.entry("e", ColorCode.YELLOW),
-            Map.entry("f", ColorCode.WHITE),
-            Map.entry("r", ColorCode.RESET)
+    public static final Map<String, COLOR> COLOR_MAP_MC = Map.ofEntries(
+            Map.entry("0", COLOR.BLACK),
+            Map.entry("1", COLOR.DARKBLUE),
+            Map.entry("2", COLOR.DARK_GREEN),
+            Map.entry("3", COLOR.DARK_AQUA),
+            Map.entry("4", COLOR.DARK_RED),
+            Map.entry("5", COLOR.DARK_PURPLE),
+            Map.entry("6", COLOR.GOLD),
+            Map.entry("7", COLOR.GRAY),
+            Map.entry("8", COLOR.DARK_GRAY),
+            Map.entry("9", COLOR.BLUE),
+            Map.entry("a", COLOR.GREEN),
+            Map.entry("b", COLOR.AQUA),
+            Map.entry("c", COLOR.RED),
+            Map.entry("d", COLOR.LIGHT_PURPLE),
+            Map.entry("e", COLOR.YELLOW),
+            Map.entry("f", COLOR.WHITE),
+            Map.entry("r", COLOR.RESET)
     );
 
-    public static String getColorCode(ColorCode color) {
+    public static String getColorCode(COLOR color) {
         return switch (color) {
             case BLACK -> "0";
             case DARKBLUE -> "1";
@@ -79,8 +78,8 @@ public abstract class Colors {
             default -> "r"; // default reset color
         };
     }
-    public static ColorCode getColorTitle(String ColorStr){
-        return COLOR_MAP_MC.getOrDefault(ColorStr.replaceAll("&|§",""),ColorCode.RESET);
+    public static COLOR getColorTitle(String ColorStr){
+        return COLOR_MAP_MC.getOrDefault(ColorStr.replaceAll("&|§",""), COLOR.RESET);
     }
 
     /**
@@ -142,8 +141,8 @@ public abstract class Colors {
     public static String coloredText(String original,String colorCode){
         return "§"+ colorCode +original + "§r";
     }
-    public static String coloredText(String original,ColorCode color){
-        if(color == ColorCode.RAINBOW){
+    public static String coloredText(String original, COLOR color){
+        if(color == COLOR.RAINBOW){
             return applyRainbow(original);
         }
         String colorCode = getColorCode(color);
@@ -157,7 +156,7 @@ public abstract class Colors {
      * @param codes color codes to color text
      * @return colored text
      */
-    public static String coloredText(String original,String split,ColorCode... codes){
+    public static String coloredText(String original, String split, COLOR... codes){
         StringBuilder sb = new StringBuilder();
         String[] children = original.split(split);
         int n = children.length;

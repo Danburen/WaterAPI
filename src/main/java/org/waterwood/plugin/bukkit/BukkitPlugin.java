@@ -198,7 +198,6 @@ public class BukkitPlugin extends JavaPlugin implements Plugin {
     public FileConfigProcess loadFile(String fileName,String extension) {
         FileConfigProcess fcp = new FileConfigProcess();
         try {
-            consoleSender.sendMessage(getDataFolder().toString());
             fcp.createFileByPath(fileName, getDataFolder().toString(),extension);
             File file = new File(getDefaultFilePath(fileName + "." + extension));
             return fcp.loadFile(file);

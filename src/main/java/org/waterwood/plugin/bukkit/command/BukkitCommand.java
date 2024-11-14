@@ -67,7 +67,7 @@ public abstract class BukkitCommand extends ComponentProcesser implements Comman
      * @return whether pass the check
      */
     public boolean checkArgs(CommandSender sender,String[] args, int mixLen, int maxLen, String templateShown) {
-        if (args.length > maxLen || args.length < maxLen) {
+        if (args.length > maxLen || args.length < mixLen) {
             sender.sendMessage(Component.text(log("illegal-arg-raw-message"),NamedTextColor.RED));
             if (templateShown != null) BukkitPlugin.logMsg(templateShown);
             return false;

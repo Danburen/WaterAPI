@@ -107,8 +107,8 @@ public class FileConfigProcess extends FileConfiguration {
         return getHashMapData(keys,data);
     }
 
-    public Map<String,Object> getData(){
-        return data;
+    public Map<String,Object> getMapData(){
+        return data == null ? new HashMap<>() : data;
     }
     public static Object getHashMapData(String[] keys, Map<String,Object> data){
         Object currentData = data;
