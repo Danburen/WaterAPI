@@ -53,8 +53,10 @@ public abstract class Colors {
         while (matcher.find()) {
             sb.append(origin, lastIndex, matcher.start());
             String colorCode = matcher.group();
-            String ansiCode = COLOR_MAP.getOrDefault(colorCode, "");
-            sb.append(ansiCode);
+            // Remove non-color codes like §l, §k, etc. (invalid codes)
+            if (COLOR_MAP.containsKey(colorCode)) {
+                sb.append(COLOR_MAP.get(colorCode));  // Add valid color/formatting code
+            }
             lastIndex = matcher.end();
         }
         // Append the remaining part of the original string
