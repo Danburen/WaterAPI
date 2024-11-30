@@ -6,8 +6,8 @@ import java.io.IOException;
 import java.util.*;
 
 public abstract class FileConfiguration extends MemoryProcess implements FileConfigBase {
-    public abstract Object get(String path);
-    public abstract Object get(String path, Object defaultVal);
+    public abstract <T> T get(String path);
+    public abstract <T> T get(String path, T defaultVal);
     public abstract void set(String path, Object val, Map<String,Object> data);
     public abstract void set(String path, Object val);
     public abstract void save(File file,Map<String,Object> data) throws Exception;
@@ -20,7 +20,7 @@ public abstract class FileConfiguration extends MemoryProcess implements FileCon
     public final Map<String,String> getMap(String path){
         return  getMap(path,String.class);
     }
-    public final List<Object> getList(String path){return (List<Object>) get(path);}
+    public final List<Object> getList(String path){return  get(path);}
     public final <T> Map<String, T> getMap(String path, Class<T> typeClass) {
         Object out = get(path);
         if (out instanceof Map<?, ?> rawMap) {
@@ -36,18 +36,18 @@ public abstract class FileConfiguration extends MemoryProcess implements FileCon
         }
     }
     public final Integer getInteger(String path){
-        return (Integer) get(path);
+        return  get(path);
     }
 
     public final Double getDouble(String path){
-        return (Double) get(path);
+        return  get(path);
     }
     public final Boolean getBoolean(String path){
-        return (Boolean) get(path);
+        return  get(path);
     }
 
     public final ArrayList<String> getStringList(String path){
-        return (ArrayList<String>) get(path);
+        return get(path);
     }
 
     public final String getString(String path){
@@ -68,7 +68,7 @@ public abstract class FileConfiguration extends MemoryProcess implements FileCon
     }
 
     public final ArrayList<String> getStringList(String path,ArrayList<String> defaultVal){
-        ArrayList<String> val = (ArrayList<String>) get(path);
+        ArrayList<String> val = get(path);
         return val == null ? defaultVal : val;
     }
 

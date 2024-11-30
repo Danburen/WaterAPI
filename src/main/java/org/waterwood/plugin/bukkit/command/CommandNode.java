@@ -1,9 +1,9 @@
 package org.waterwood.plugin.bukkit.command;
 
-import net.kyori.adventure.text.Component;
-import net.kyori.adventure.text.format.NamedTextColor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.command.TabCompleter;
+import org.waterwood.common.Colors;
+import org.waterwood.consts.COLOR;
 import org.waterwood.plugin.bukkit.BukkitPlugin;
 
 import java.util.*;
@@ -29,7 +29,7 @@ public class CommandNode {
         if(handler != null){
             return handler.execute(sender,args);
         }
-        sender.sendMessage(Component.text(BukkitPlugin.getPluginMessage("command-not-found-message"), NamedTextColor.RED));
+        sender.sendMessage(Colors.coloredText(BukkitPlugin.getPluginMessage("command-not-found-message"), COLOR.RED));
         return false;
     }
 

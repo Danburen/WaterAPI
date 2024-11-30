@@ -1,11 +1,11 @@
 package org.waterwood.plugin.bukkit.command;
 
-import net.kyori.adventure.text.Component;
-import net.kyori.adventure.text.format.NamedTextColor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.command.ConsoleCommandSender;
 import org.bukkit.entity.Player;
+import org.waterwood.common.Colors;
 import org.waterwood.common.StringProcess;
+import org.waterwood.consts.COLOR;
 import org.waterwood.plugin.bukkit.BukkitPlugin;
 import org.waterwood.plugin.bukkit.util.ComponentProcesser;
 
@@ -29,7 +29,7 @@ public abstract class BukkitCommand extends ComponentProcesser implements Comman
         if (sender.hasPermission(permission)) {
             return true;
         }
-        sender.sendMessage(log("no-permission"));
+        sender.sendMessage(getFromMessage("no-permission"));
         return false;
     }
 
@@ -37,7 +37,7 @@ public abstract class BukkitCommand extends ComponentProcesser implements Comman
         if (sender instanceof Player) {
             return true;
         }
-        sender.sendMessage(Component.text(log("only-in-game-message"), NamedTextColor.RED));
+        sender.sendMessage(Colors.coloredText(getFromMessage("only-in-game-message"), COLOR.RED));
         return false;
     }
 
@@ -45,7 +45,7 @@ public abstract class BukkitCommand extends ComponentProcesser implements Comman
         if (sender instanceof ConsoleCommandSender) {
             return true;
         }
-        sender.sendMessage(Component.text(log("only-in-console-message"), NamedTextColor.RED));
+        sender.sendMessage(Colors.coloredText(getFromMessage("only-in-console-message"), COLOR.RED));
         return false;
     }
 
@@ -63,42 +63,41 @@ public abstract class BukkitCommand extends ComponentProcesser implements Comman
      * @param args args which would be checked
      * @param mixLen  min length of args
      * @param maxLen max length of args
-     * @param templateShown template usage shown to sender
      * @return whether pass the check
      */
-    public boolean checkArgs(CommandSender sender,String[] args, int mixLen, int maxLen, String templateShown) {
+    public boolean checkArgs(CommandSender sender,String[] args, int mixLen, int maxLen) {
         if (args.length > maxLen || args.length < mixLen) {
-            sender.sendMessage(Component.text(log("illegal-arg-raw-message"),NamedTextColor.RED));
-            if (templateShown != null) BukkitPlugin.logMsg(templateShown);
+            sender.sendMessage(Colors.coloredText(getFromMessage("illegal-arg-raw-message"),COLOR.RED));
             return false;
         }
         return true;
     }
-    public boolean checkArgs(CommandSender sender,String[] args, int mixLen, int maxLen){
-        return checkArgs(sender,args,mixLen,maxLen,null);
+    public boolean checkArgs(CommandSender sender, String[] args, int argLength){
+        if (args.length!=argLength) {
+            sender.sendMessage(Colors.coloredText(getFromMessage("illegal-arg-raw-message"),COLOR.RED));
+            return false;
+        }
+        return true;
     }
-    public boolean ckeckArgNumeric(CommandSender sender, String arg){
+    public boolean checkArgNumeric(CommandSender sender, String arg){
         if(StringProcess.isNumeric(arg)){
             return true;
         }else{
-            sender.sendMessage(Component.text(log("illegal-arg-message","数字"),NamedTextColor.RED));
+            sender.sendMessage(Colors.coloredText(getFromMessage("illegal-arg-message").formatted("数字"),COLOR.RED));
             return false;
         }
     }
     public boolean checkArgNumIn(CommandSender sender,int arg,int min,int max){
         if(arg > max || arg < min){
-            sender.sendMessage(Component.text(
-                   log("illegal-arg-message", String.valueOf(arg),String.format(" 数字 在(%d,%d)范围内任取一个数",min,max)
-                    ),NamedTextColor.RED));
+            sender.sendMessage(Colors.coloredText(
+                   getFromMessage("illegal-arg-message").formatted(String.valueOf(arg),String.format(" 数字 在(%d,%d)范围内任取一个数",min,max)
+                    ),COLOR.RED));
             return false;
         }
         return true;
     }
-    private String log(String path){
+    private String getFromMessage(String path){
         return BukkitPlugin.getPluginMessage(path);
-    }
-    private String log(String path,String... args){
-        return BukkitPlugin.getPluginMessage(path).formatted((Object) args);
     }
     @Override
     public abstract boolean execute(CommandSender sender, String[] args);

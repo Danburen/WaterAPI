@@ -229,8 +229,9 @@ public abstract class WaterPlugin  implements Plugin {
         logMsg("§e%s §6author: §7%s §6version: §7%s".formatted(getPluginInfo("name")
                 , getPluginInfo("author"), getPluginInfo("version")));
     }
-    public static String getPluginInfo(){
+    public String getPluginInfo(){
         return "§6%s§r §ev§7%s§r".formatted(getPluginInfo("name"), getPluginInfo("version")) +
-                "§6 by: §7%s".formatted( getPluginInfo("author"));
+                "§6 by: §7%s".formatted( getPluginInfo("author"))
+                + getPluginMessage("help-info-message").formatted(getPluginName(),getPluginName());
     }
 }

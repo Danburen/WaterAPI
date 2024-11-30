@@ -1,6 +1,7 @@
 package org.waterwood.common;
 
 import org.waterwood.consts.COLOR;
+import org.waterwood.consts.RarityLevel;
 
 import java.awt.*;
 import java.util.Map;
@@ -81,7 +82,16 @@ public abstract class Colors {
     public static COLOR getColorTitle(String ColorStr){
         return COLOR_MAP_MC.getOrDefault(ColorStr.replaceAll("&|§",""), COLOR.RESET);
     }
-
+    public static COLOR getRarityColor(RarityLevel rarityLevel){
+        return switch (rarityLevel){
+            case NORMAL -> COLOR.GRAY;
+            case ADVANCE -> COLOR.GREEN;
+            case RARE -> COLOR.AQUA;
+            case EPIC -> COLOR.DARK_PURPLE;
+            case LEGEND -> COLOR.GOLD;
+            case MYTHIC -> COLOR.RED;
+        };
+    }
     /**
      * Parses {@link Colors color-code} to show in the terminal.
      * Original text contains code §.
@@ -164,6 +174,6 @@ public abstract class Colors {
             sb.append(coloredText(children[i],codes[i % codes.length]));
             sb.append(split);
         }
-        return sb.toString();
+        return sb.substring(0,sb.toString().length() - split.length());
     }
 }

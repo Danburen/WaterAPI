@@ -1,8 +1,10 @@
 package org.waterwood.plugin.bukkit;
 
 import org.bukkit.Bukkit;
+import org.bukkit.ChatColor;
 import org.bukkit.command.ConsoleCommandSender;
 import org.waterwood.common.LineFontGenerator;
+import org.waterwood.consts.COLOR;
 import org.waterwood.io.FileConfigProcess;
 import org.waterwood.io.web.Updater;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -78,13 +80,13 @@ public class BukkitPlugin extends JavaPlugin implements Plugin {
     }
     @Override
     public void loadConfig(){
-        loadConfig(true);
+        loadConfig(false);
     }
 
     public void loadConfig(String lang) throws  Exception{
             config.loadFile(getDefaultFilePath("config.yml"));
             locale = "locale".equals(config.getString("player-locale"));
-            pluginMessages.loadSource("locale/" + lang +  ".properties", "default/" + lang + ".properties");
+            pluginMessages.loadSource( "default/" + lang + ".properties" , "locale/" + lang +  ".properties");
     }
     @Override
     public void reloadConfig(){
@@ -225,14 +227,16 @@ public class BukkitPlugin extends JavaPlugin implements Plugin {
     }
     public void showPluginTitle(String lineTitleDisplay){
         for(String str : LineFontGenerator.parseLineText(lineTitleDisplay)) {
-            logMsg("§6%s§r".formatted(str));
+            logMsg(ChatColor.GOLD + str);
         }
-        logMsg("§e%s §6author:§7%s §6version:§7%s".formatted(getPluginInfo("name")
-                ,getPluginInfo("author"), getPluginInfo("version")));
+        logMsg(Colors.coloredText("Author: %s Version: %s".formatted(
+                getPluginInfo("author"), getPluginInfo("version")),
+                " ",COLOR.GOLD,COLOR.GRAY,COLOR.GOLD,COLOR.GRAY));
     }
     public static String getPluginInfo(){
-        return "§6%s§r §ev§7%s§r".formatted(getPluginInfo("name"), getPluginInfo("version")) +
-                "§6 by: §7%s".formatted( getPluginInfo("author"));
+            return Colors.coloredText("%s by:%s v%s".formatted(getPluginName(),
+                            getPluginInfo("author"), getPluginInfo("version")),
+                    " ",COLOR.GRAY,COLOR.GOLD,COLOR.GOLD);
     }
 
 }

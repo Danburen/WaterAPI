@@ -94,13 +94,21 @@ public class FileConfigProcess extends FileConfiguration {
     }
 
     @Override
-    public final Object get(String path){
-        return get(path,data);
+    public final <T> T get(String path){
+        return (T) get(path,data);
     }
     @Override
-    public final Object get(String path,Object defaultVal){
-        Object val = get(path,data);
-        return val == null ? defaultVal : val;
+    public final <T> T get(String path,T defaultVal){
+        Object value = get(path,data);
+        if (value == null) {
+            return  defaultVal;
+        }
+        try {
+            return (T) value;
+        } catch (ClassCastException e) {
+            System.err.println("Invalid type for key " + path + ". Returning default value.");
+            return  defaultVal;
+        }
     }
     public static Object get(String path,Map<String,Object> data){
         String[] keys = path.split("\\.");
