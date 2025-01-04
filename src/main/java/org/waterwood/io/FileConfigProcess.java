@@ -1,6 +1,6 @@
 package org.waterwood.io;
 
-import org.waterwood.plugin.WaterPlugin;
+import org.waterwood.adapter.DataAdapter;
 import org.yaml.snakeyaml.DumperOptions;
 import org.yaml.snakeyaml.Yaml;
 
@@ -15,7 +15,6 @@ import java.util.stream.Collectors;
 public class FileConfigProcess extends FileConfiguration {
     private Map<String,Object> data;
     Yaml yaml = new Yaml(getDumperOptions());
-
     @Override
     public void set(String path, Object val, Map<String, Object>  data){
         String[] keys= path.split("\\.");
@@ -42,10 +41,18 @@ public class FileConfigProcess extends FileConfiguration {
         data = getFileMapData(filePath);
         return this;
     }
+    public FileConfigProcess loadFile(File file) throws IOException{
+        data = getFileMapData(file);
+        return this;
+    }
 
     @Override
     public Map<String, Object> getFileMapData(String filePath) throws IOException {
         File file = new File(filePath);
+        return getFileMapData(file);
+    }
+    @Override
+    public Map<String,Object> getFileMapData(File file) throws IOException{
         try(InputStream FIS = new FileInputStream(file)){
             return yaml.load(FIS);
         }catch (IOException e){
@@ -86,17 +93,42 @@ public class FileConfigProcess extends FileConfiguration {
         }
     }
 
-    @Override
-    public final Object get(String path){
-        return get(path,data);
+    public final Object getRaw(String key){
+        return get(key,data);
     }
+
+    @Deprecated
+    @Override
+    public final <T> T get(String path){
+        return (T) getRaw(path);
+    }
+    @Override
+    public final <T> T get(String path,T defaultVal){
+        Object value = get(path,data);
+        return DataAdapter.toValue(value,defaultVal);
+    }
+
     public static Object get(String path,Map<String,Object> data){
         String[] keys = path.split("\\.");
         return getHashMapData(keys,data);
     }
 
-    public Map<String,Object> getData(){
-        return data;
+    public Map<String,Object> getMapData(){
+        return data == null ? new HashMap<>() : data;
+    }
+
+    /**
+     * Second layer fragment map data
+     * @param mapKey the primary key
+     * @return map data of layer
+     */
+    public Map<String,Object> getMapData(String mapKey){
+        Object data = this.getMapData().get(mapKey);
+        if (data == null){
+            return new HashMap<>();
+        }else{
+            return (Map<String, Object>) data;
+        }
     }
     public static Object getHashMapData(String[] keys, Map<String,Object> data){
         Object currentData = data;

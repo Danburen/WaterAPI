@@ -6,6 +6,7 @@ import org.waterwood.plugin.WaterPlugin;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 public class VelocityPlugin extends WaterPlugin {
     private static ProxyServer server = null;
@@ -20,5 +21,16 @@ public class VelocityPlugin extends WaterPlugin {
     public static List<String> getAllPlayerName(){
         return  server.getAllPlayers().stream().map(Player::getUsername).toList();
     }
-
+    public static List<UUID> getAllPlayerUUID(){
+        return  server.getAllPlayers().stream().map(Player::getUniqueId).toList();
+    }
+    public static List<Player> getAllPlayer(){
+        return server.getAllPlayers().stream().toList();
+    }
+    public static UUID getPlayerUUID(String playerName){
+        return server.getPlayer(playerName).map(Player::getUniqueId).orElse(null);
+    }
+    public static String getPlayerName(UUID playerUUID){
+        return server.getPlayer(playerUUID).map(Player::getUsername).orElse(null);
+    }
 }

@@ -1,10 +1,11 @@
 package org.waterwood.plugin;
 
-import org.waterwood.common.Colors;
-import org.waterwood.common.LineFontGenerator;
+import org.waterwood.utils.Colors;
+import org.waterwood.utils.LineFontGenerator;
 import org.waterwood.io.FileConfigProcess;
 import org.waterwood.io.web.Updater;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Locale;
@@ -40,7 +41,6 @@ public abstract class WaterPlugin  implements Plugin {
     public void logMsg(String message){
         logger.info(Colors.parseColor(message,false));
     }
-
     public static FileConfigProcess getConfigs(){
         return config;
     }
@@ -59,7 +59,6 @@ public abstract class WaterPlugin  implements Plugin {
         String lang = Locale.getDefault().getLanguage();
         try {
             config.createFileByDir("config",getPluginName());
-            config.createFileByDir("message",getPluginName());
             loadConfig(lang);
             if(loadMessage) {
                 locale = "locale".equals(config.getString("player-locale"));
@@ -89,6 +88,37 @@ public abstract class WaterPlugin  implements Plugin {
         }
     }
 
+    @Override
+    public FileConfigProcess loadSource(String sourcePath){
+        FileConfigProcess fcp = new FileConfigProcess();
+        try {
+            fcp.loadSource(sourcePath);
+        } catch (IOException e) {
+            logger.warning("Error loading source " + sourcePath);
+        }
+        return fcp;
+    }
+    @Override
+    public FileConfigProcess loadFile(String fileName) {
+        int dotInd = fileName.indexOf(".");
+        String simpleName = fileName.substring(0,dotInd);
+        String extension = fileName.substring(dotInd + 1);
+        return loadFile(simpleName,extension);
+    }
+
+    @Override
+    public FileConfigProcess loadFile(String fileName,String extension) {
+        FileConfigProcess fcp = new FileConfigProcess();
+        try {
+            fcp.createFileByPath(fileName, getPluginName(),extension);
+            File file = new File(getDefaultFilePath(fileName + "." + extension));
+            return fcp.loadFile(file);
+        } catch (IOException e) {
+            logger.warning("Error loading file " + fileName + "." + extension);
+            e.printStackTrace();
+        }
+        return fcp;
+    }
     public void reloadConfig(String dataName) throws IOException{
         switch (dataName) {
             case "config" -> config.loadFile(getDefaultFilePath("config.yml"));
@@ -165,6 +195,10 @@ public abstract class WaterPlugin  implements Plugin {
             logger.warning(getPluginMessage("config-file-out-date-message"));
         }
     }
+    @Override
+    public String getLocale(){
+        return config.getString("locale") == null ? "en" : config.getString("locale");
+    }
     public void loadLocale(String lang){
         if(messages.containsKey(lang)) return;
         try {
@@ -188,8 +222,9 @@ public abstract class WaterPlugin  implements Plugin {
         logMsg("§e%s §6author: §7%s §6version: §7%s".formatted(getPluginInfo("name")
                 , getPluginInfo("author"), getPluginInfo("version")));
     }
-    public static String getPluginInfo(){
+    public String getPluginInfo(){
         return "§6%s§r §ev§7%s§r".formatted(getPluginInfo("name"), getPluginInfo("version")) +
-                "§6 by: §7%s".formatted( getPluginInfo("author"));
+                "§6 by: §7%s".formatted( getPluginInfo("author"))
+                + getPluginMessage("help-info-message").formatted(getPluginName(),getPluginName());
     }
 }

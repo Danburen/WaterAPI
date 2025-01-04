@@ -1,13 +1,17 @@
 package org.waterwood.plugin.bukkit;
 
-import org.waterwood.common.LineFontGenerator;
+import org.bukkit.Bukkit;
+import org.bukkit.ChatColor;
+import org.bukkit.command.ConsoleCommandSender;
+import org.waterwood.utils.LineFontGenerator;
+import org.waterwood.enums.COLOR;
 import org.waterwood.io.FileConfigProcess;
 import org.waterwood.io.web.Updater;
 import org.bukkit.plugin.java.JavaPlugin;
-import org.waterwood.common.Colors;
+import org.waterwood.utils.Colors;
 import org.waterwood.plugin.Plugin;
-import org.waterwood.plugin.WaterPlugin;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Locale;
@@ -16,16 +20,19 @@ import java.util.logging.Logger;
 
 public class BukkitPlugin extends JavaPlugin implements Plugin {
     private static Logger logger;
+    private static final ConsoleCommandSender consoleSender = Bukkit.getConsoleSender();
     private static final FileConfigProcess config = new FileConfigProcess();
     private static final FileConfigProcess pluginMessages = new FileConfigProcess();
     private static final Map<String,FileConfigProcess> messages = new HashMap<>();
     private static  FileConfigProcess pluginData;
     private static boolean locale = false;
+    private static String PLUGIN_NAME = "";
     public void initialization(){
         if(pluginData == null){
             try {
                 pluginData = new FileConfigProcess();
                 pluginData.loadSource("plugin.yml");
+                PLUGIN_NAME = getPluginInfo("name");
             }catch (IOException e){
                 Logger.getLogger(this.getClass().getName()).warning("Plugin not founded");
             }
@@ -37,31 +44,30 @@ public class BukkitPlugin extends JavaPlugin implements Plugin {
     }
 
     public static void logMsg(String message){
-        logger.info(Colors.parseColor(message));
+        message = "[%s] ".formatted(PLUGIN_NAME) + message;
+        consoleSender.sendMessage(message);
     }
-
     public static FileConfigProcess getConfigs(){
         return config;
     }
     public static String getPluginMessage(String path){
         return pluginMessages.getString(path);
     }
-    public String getPluginName(){
-        return getPluginInfo("name");
+    public static String getPluginMessage(String path,Object... args){
+        return pluginMessages.getString(path).formatted(args);
+    }
+    public static String getPluginName(){
+        return PLUGIN_NAME;
     }
     @Override
     public String getDefaultFilePath(String file){
-        return config.getJarDir() + "\\" +getPluginName() + "\\" + file;
-    }
-    public String getPluginFilePath(String fileName){
-        return getDataFolder() + "\\" + fileName;
+        return getDataFolder() + "\\" + file;
     }
     @Override
     public void loadConfig(boolean loadMessage){
         String lang = Locale.getDefault().getLanguage();
         try {
             config.createFileByPath("config",getDataFolder().toString());
-            config.createFileByPath("message",getDataFolder().toString());
             loadConfig(lang);
             if(loadMessage) {
                 locale = "locale".equals(config.getString("player-locale"));
@@ -74,13 +80,13 @@ public class BukkitPlugin extends JavaPlugin implements Plugin {
     }
     @Override
     public void loadConfig(){
-        loadConfig(true);
+        loadConfig(false);
     }
 
     public void loadConfig(String lang) throws  Exception{
             config.loadFile(getDefaultFilePath("config.yml"));
             locale = "locale".equals(config.getString("player-locale"));
-            pluginMessages.loadSource("locale/" + lang +  ".properties", "default/" + lang + ".properties");
+            pluginMessages.loadSource( "default/" + lang + ".properties" , "locale/" + lang +  ".properties");
     }
     @Override
     public void reloadConfig(){
@@ -93,7 +99,7 @@ public class BukkitPlugin extends JavaPlugin implements Plugin {
 
     public void reloadConfig(String dataName) throws IOException{
         switch (dataName) {
-            case "config" -> config.loadFile(getPluginFilePath("config.yml"));
+            case "config" -> config.loadFile(getDefaultFilePath("config.yml"));
             case "message" -> pluginMessages.loadSource("locale/" + config.getString("locale")+ ".properties");
             default -> reloadConfig();
         }
@@ -102,7 +108,7 @@ public class BukkitPlugin extends JavaPlugin implements Plugin {
     public void loadLocalMsg(String lang, boolean  load) throws IOException {
         if(load) {
             config.createFileByPath("message", getDataFolder().toString());
-            messages.put(lang, new FileConfigProcess().loadFile(getPluginFilePath("message.yml")));
+            messages.put(lang, new FileConfigProcess().loadFile(getDefaultFilePath("message.yml")));
         }
     }
 
@@ -167,6 +173,42 @@ public class BukkitPlugin extends JavaPlugin implements Plugin {
             logger.warning(getPluginMessage("config-file-out-date-message"));
         }
     }
+    @Override
+    public String getLocale(){
+        return config.getString("locale") == null ? "en" : config.getString("locale");
+    }
+
+    @Override
+    public FileConfigProcess loadSource(String sourcePath){
+        FileConfigProcess fcp = new FileConfigProcess();
+        try {
+            fcp.loadSource(sourcePath);
+        } catch (IOException e) {
+            logger.warning("Error loading source " + sourcePath);
+        }
+        return fcp;
+    }
+    @Override
+    public FileConfigProcess loadFile(String fileName) {
+        int dotInd = fileName.indexOf(".");
+        String simpleName = fileName.substring(0,dotInd);
+        String extension = fileName.substring(dotInd + 1);
+        return loadFile(simpleName,extension);
+    }
+
+    @Override
+    public FileConfigProcess loadFile(String fileName,String extension) {
+        FileConfigProcess fcp = new FileConfigProcess();
+        try {
+            fcp.createFileByPath(fileName, getDataFolder().toString(),extension);
+            File file = new File(getDefaultFilePath(fileName + "." + extension));
+            return fcp.loadFile(file);
+        } catch (IOException e) {
+            logger.warning("Error loading file " + fileName + "." + extension);
+            e.printStackTrace();
+        }
+        return fcp;
+    }
     public void loadLocale(String lang){
         if(messages.containsKey(lang)) return;
         try {
@@ -185,14 +227,16 @@ public class BukkitPlugin extends JavaPlugin implements Plugin {
     }
     public void showPluginTitle(String lineTitleDisplay){
         for(String str : LineFontGenerator.parseLineText(lineTitleDisplay)) {
-            logMsg("§6%s§r".formatted(str));
+            logMsg(ChatColor.GOLD + str);
         }
-        logMsg("§e%s §6author:§7%s §6version:§7%s".formatted(getPluginInfo("name")
-                , getPluginInfo("author"), getPluginInfo("version")));
+        logMsg(Colors.coloredText("Author: %s Version: %s".formatted(
+                getPluginInfo("author"), getPluginInfo("version")),
+                " ",COLOR.GOLD,COLOR.GRAY,COLOR.GOLD,COLOR.GRAY));
     }
     public static String getPluginInfo(){
-        return "§6%s§r §ev§7%s§r".formatted(getPluginInfo("name"), getPluginInfo("version")) +
-                "§6 by: §7%s".formatted( getPluginInfo("author"));
+            return Colors.coloredText("%s by:%s v%s".formatted(getPluginName(),
+                            getPluginInfo("author"), getPluginInfo("version")),
+                    " ",COLOR.GRAY,COLOR.GOLD,COLOR.GOLD);
     }
 
 }

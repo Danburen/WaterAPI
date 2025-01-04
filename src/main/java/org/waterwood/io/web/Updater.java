@@ -9,6 +9,10 @@ import java.io.IOException;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 
+/**
+ * A class to get and download latest data from GitHub
+ * @since 1.0.1
+ */
 public abstract class Updater extends WebIO {
 
     /**
@@ -63,6 +67,11 @@ public abstract class Updater extends WebIO {
         });
     }
 
+    /**
+     * parse dotStr like(1.x.x) to double version value -> 1.xx
+     * @param dotStr String that contains dot.
+     * @return double version
+     */
     public static double parseVersion(String dotStr){
         int dotInd = dotStr.indexOf(".");
         String out;

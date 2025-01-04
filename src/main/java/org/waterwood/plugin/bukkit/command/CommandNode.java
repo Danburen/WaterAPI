@@ -1,17 +1,16 @@
 package org.waterwood.plugin.bukkit.command;
 
 import org.bukkit.command.CommandSender;
+import org.waterwood.utils.Colors;
+import org.waterwood.enums.COLOR;
+import org.waterwood.plugin.bukkit.BukkitPlugin;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public class CommandNode {
     private final String name;
     private final Map<String,CommandNode> children = new HashMap<>();
     private CommandHandler handler;
-
     public CommandNode(String name) {
         this.name = name;
     }
@@ -29,19 +28,31 @@ public class CommandNode {
         if(handler != null){
             return handler.execute(sender,args);
         }
+        sender.sendMessage(Colors.coloredText(BukkitPlugin.getPluginMessage("command-not-found-message"), COLOR.RED));
         return false;
     }
-    public List<String> tabComplete(String[] args){
+
+    /**
+     * default tab Complete usually command didn't set handler.
+     * @param sender CommandSender
+     * @param args args of command
+     * @return List of Completes.
+     */
+    public List<String> tabComplete(CommandSender sender,String[] args){;
         List<String> suggestions = new ArrayList<>();
-        if(args.length > 0 ){
-            String lastArg = args[args.length - 1];
-            for(String child : children.keySet()){
-                if(child.startsWith(lastArg)){
-                    suggestions.add(child);
+        if(handler == null) {
+            if (args.length > 0) {
+                String lastArg = args[args.length - 1];
+                for (String child : children.keySet()) {
+                    if (child.startsWith(lastArg)) {
+                        suggestions.add(child);
+                    }
                 }
+            } else {
+                suggestions.addAll(children.keySet());
             }
         }else{
-            suggestions.addAll(children.keySet());
+            return handler.tabComplete(sender,args);
         }
         return suggestions;
     }
@@ -52,6 +63,9 @@ public class CommandNode {
 
     public Map<String,CommandNode> getChilds(){
         return children;
+    }
+    public CommandHandler getHandler(){
+        return handler;
     }
 
     public String getName(){
