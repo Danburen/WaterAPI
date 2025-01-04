@@ -1,10 +1,14 @@
-package org.waterwood.common;
+package org.waterwood.processor;
 
+import org.waterwood.utils.Colors;
+
+import java.util.List;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
-public abstract class StringProcess extends Colors{
+public abstract class StringProcess extends Colors {
     private static final String PlaceHolderRegex = "\\{(.*?)}";
     private static final Pattern PlaceHolderPattern = Pattern.compile(PlaceHolderRegex);
     private static final String PercentPlaceHolderRegx = "%(.*?)%";
@@ -30,19 +34,28 @@ public abstract class StringProcess extends Colors{
     public static boolean isNumeric(String str){
         return str != null && str.matches("-?\\d+");
     }
+
+    /**
+     * Replace template with value
+     * template like {temple} or %temple%
+     * @param template the template replace
+     * @param values the values to replace
+     * @return replaced String
+     */
     public static String replacePlaceHolder(String template, Map<String,Object> values) {
         template = replacePercentPlaceHolder(template);
         Matcher matcher = PlaceHolderPattern.matcher(template);
         String result = template;
-        while(matcher.find()){
+        while (matcher.find()) {
             String placeHolder = matcher.group(0); //{name}
             String variableName = matcher.group(1); //name
-            if(values.containsKey(variableName)){
+            if (values.containsKey(variableName)) {
                 result = result.replace(placeHolder, String.valueOf(values.get(variableName)));
             }
         }
         return result;
     }
+
     private static String replacePercentPlaceHolder(String input){
         Matcher matcher = PercentPlaceHolder.matcher(input);
         String result = input;
@@ -50,5 +63,17 @@ public abstract class StringProcess extends Colors{
             result = result.replace(matcher.group(0),"{" + matcher.group(1) + "}");
         }
         return result;
+    }
+
+    /**
+     * Replace template from  each string of String List
+     * @param list list string to replace template
+     * @param values the value map for replace placeHolder
+     * @return placeholder replaced list String
+     */
+    public static List<String> ListStringReplace(List<String> list,Map<String,Object> values){
+        return list.stream()
+                .map(str -> StringProcess.replacePlaceHolder(str,values))
+                .collect(Collectors.toList());
     }
 }

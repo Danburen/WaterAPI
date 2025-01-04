@@ -1,8 +1,14 @@
-package org.waterwood.common;
+package org.waterwood.utils;
 
 
 import java.util.Arrays;
 
+/**
+ * Generate Line Font
+ * @since 1.0-SNAPSHOT
+ * @version 1.0
+ * @author waterwood
+ */
 public abstract class LineFontGenerator {
     public static final String[] FUTURISTIC_BUILD_RAW = {
             "     \n __  \n(__( \n     ", "     \n|__  \n|__) \n     ", "     \n __  \n(___ \n     ",

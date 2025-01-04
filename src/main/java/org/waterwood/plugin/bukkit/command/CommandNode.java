@@ -1,9 +1,8 @@
 package org.waterwood.plugin.bukkit.command;
 
 import org.bukkit.command.CommandSender;
-import org.bukkit.command.TabCompleter;
-import org.waterwood.common.Colors;
-import org.waterwood.consts.COLOR;
+import org.waterwood.utils.Colors;
+import org.waterwood.enums.COLOR;
 import org.waterwood.plugin.bukkit.BukkitPlugin;
 
 import java.util.*;

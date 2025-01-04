@@ -1,7 +1,7 @@
 package org.waterwood.plugin;
 
-import org.waterwood.common.Colors;
-import org.waterwood.common.LineFontGenerator;
+import org.waterwood.utils.Colors;
+import org.waterwood.utils.LineFontGenerator;
 import org.waterwood.io.FileConfigProcess;
 import org.waterwood.io.web.Updater;
 
@@ -45,7 +45,7 @@ public abstract class WaterPlugin  implements Plugin {
         logMsg(getPluginMessage(path));
     }
     public void logTemplateMsg(String path,String... args){
-        logMsg(getPluginMessage(path).formatted(args));
+        logMsg(getPluginMessage(path).formatted((Object) args));
     }
 
     public static FileConfigProcess getConfigs(){

@@ -1,7 +1,7 @@
-package org.waterwood.common;
+package org.waterwood.utils;
 
-import org.waterwood.consts.COLOR;
-import org.waterwood.consts.RarityLevel;
+import org.waterwood.enums.COLOR;
+import org.waterwood.enums.RarityLevel;
 
 import java.awt.*;
 import java.util.Map;
@@ -82,7 +82,7 @@ public abstract class Colors {
     public static COLOR getColorTitle(String ColorStr){
         return COLOR_MAP_MC.getOrDefault(ColorStr.replaceAll("&|§",""), COLOR.RESET);
     }
-    public static COLOR getRarityColor(RarityLevel rarityLevel){
+    public static COLOR  getRarityColor(RarityLevel rarityLevel){
         return switch (rarityLevel){
             case NORMAL -> COLOR.GRAY;
             case ADVANCE -> COLOR.GREEN;

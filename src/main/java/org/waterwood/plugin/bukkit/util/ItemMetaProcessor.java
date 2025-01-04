@@ -8,9 +8,10 @@ import org.bukkit.persistence.PersistentDataType;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 
-public class ItemMetaProcesser {
+public class ItemMetaProcessor {
     /**
      * 获取指定命名空间下所有的键值对
      *
@@ -157,5 +158,9 @@ public class ItemMetaProcesser {
      */
     public static Map<NamespacedKey, Boolean> getNamespaceBooleanKeys(ItemStack itemStack, String namespace) {
         return getNamespaceKeys(itemStack, namespace, PersistentDataType.BOOLEAN);
+    }
+
+    public static Optional<ItemMeta> getOptionalItemMeta(ItemStack itemStack) {
+        return Optional.ofNullable(itemStack.getItemMeta());
     }
 }

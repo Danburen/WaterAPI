@@ -1,4 +1,6 @@
-package org.waterwood.consts;
+package org.waterwood.enums;
+
+import java.util.Map;
 
 public enum RarityLevel {
     NORMAL(0,"normal"),
@@ -20,7 +22,7 @@ public enum RarityLevel {
     public String getKey(){
         return key;
     }
-    public static RarityLevel convertRarityLevel(String strRarityLevel){
+    public static RarityLevel getRarityLevel(String strRarityLevel){
         strRarityLevel = strRarityLevel.toLowerCase();
         return switch (strRarityLevel){
             case "common","normal" -> RarityLevel.NORMAL;
@@ -30,5 +32,24 @@ public enum RarityLevel {
             case "legend" -> RarityLevel.LEGEND;
             default -> RarityLevel.NORMAL;
         };
+    }
+    public static RarityLevel getRarityLevel(int rarityLevel){
+        return switch (rarityLevel) {
+            case 1 -> RarityLevel.ADVANCE;
+            case 2 -> RarityLevel.EPIC;
+            case 3 -> RarityLevel.LEGEND;
+            case 4 -> RarityLevel.MYTHIC;
+            default -> RarityLevel.NORMAL;
+        };
+    }
+    public static Map<String,String> getRarityLevelDisplayMap(){
+        return Map.of(
+                NORMAL.key,NORMAL.key,
+                ADVANCE.key,ADVANCE.key,
+                RARE.key,RARE.key,
+                EPIC.key,EPIC.key,
+                LEGEND.key,LEGEND.key,
+                MYTHIC.key,MYTHIC.key
+        );
     }
 }

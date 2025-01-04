@@ -13,7 +13,7 @@ import net.kyori.adventure.text.format.TextDecoration;
 import java.util.ArrayList;
 import java.util.List;
 
-public abstract class ComponentProcesser {
+public abstract class ComponentProcessor {
 
     public static Component convertChatColorString(String input) {
         List<Component> components = new ArrayList<>();

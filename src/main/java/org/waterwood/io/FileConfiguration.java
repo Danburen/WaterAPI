@@ -45,7 +45,7 @@ public abstract class FileConfiguration extends MemoryProcess implements FileCon
     public final Boolean getBoolean(String path){
         return  get(path);
     }
-
+    @Deprecated
     public final ArrayList<String> getStringList(String path){
         return get(path);
     }
@@ -67,9 +67,17 @@ public abstract class FileConfiguration extends MemoryProcess implements FileCon
         return val == null ? defaultVal : val;
     }
 
-    public final ArrayList<String> getStringList(String path,ArrayList<String> defaultVal){
-        ArrayList<String> val = get(path);
-        return val == null ? defaultVal : val;
+    public final List<String> getStringList(String path,List<String> defaultVal){
+        Object data = get(path);
+        if (data instanceof List<?> tempList) {
+            if (tempList.stream().allMatch(item -> item instanceof String)) {
+                return (List<String>) tempList;
+            } else {
+                return defaultVal;
+            }
+        } else {
+            return defaultVal;
+        }
     }
 
     public final String getString(String path,String defaultVal){

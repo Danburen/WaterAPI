@@ -1,7 +1,7 @@
 package org.waterwood.plugin.bukkit.util;
 
 import org.bukkit.ChatColor;
-import org.waterwood.common.Colors;
+import org.waterwood.utils.Colors;
 
 public class BColor extends Colors {
     public static String coloredText(String original,ChatColor color){

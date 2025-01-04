@@ -3,12 +3,12 @@ package org.waterwood.plugin.bukkit;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.command.ConsoleCommandSender;
-import org.waterwood.common.LineFontGenerator;
-import org.waterwood.consts.COLOR;
+import org.waterwood.utils.LineFontGenerator;
+import org.waterwood.enums.COLOR;
 import org.waterwood.io.FileConfigProcess;
 import org.waterwood.io.web.Updater;
 import org.bukkit.plugin.java.JavaPlugin;
-import org.waterwood.common.Colors;
+import org.waterwood.utils.Colors;
 import org.waterwood.plugin.Plugin;
 
 import java.io.File;

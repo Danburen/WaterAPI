@@ -3,15 +3,15 @@ package org.waterwood.plugin.bukkit.command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.command.ConsoleCommandSender;
 import org.bukkit.entity.Player;
-import org.waterwood.common.Colors;
-import org.waterwood.common.StringProcess;
-import org.waterwood.consts.COLOR;
+import org.waterwood.utils.Colors;
+import org.waterwood.processor.StringProcess;
+import org.waterwood.enums.COLOR;
 import org.waterwood.plugin.bukkit.BukkitPlugin;
-import org.waterwood.plugin.bukkit.util.ComponentProcesser;
+import org.waterwood.plugin.bukkit.util.ComponentProcessor;
 
 import java.util.List;
 
-public abstract class BukkitCommand extends ComponentProcesser implements CommandHandler {
+public abstract class BukkitCommand extends ComponentProcessor implements CommandHandler {
     private final String commandPath;
     private final String commandLabel;
 
