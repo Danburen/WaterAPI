@@ -10,7 +10,6 @@ public interface Plugin {
     static Logger getLogger() {
         return null;
     }
-    String getDefaultSourcePath(String source, String extension, String lang);
     void loadConfig();
     void loadDefaultSource(String lang);
 

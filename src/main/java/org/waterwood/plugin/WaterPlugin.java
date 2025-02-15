@@ -50,6 +50,8 @@ public abstract class WaterPlugin  implements Plugin {
     public String getPluginName(){
         return getPluginInfo("name");
     }
+
+    @Override
     public String getDefaultFilePath(String filePath){
         return config.getPluginFilePath(getPluginName(), filePath);
     }
@@ -58,11 +60,12 @@ public abstract class WaterPlugin  implements Plugin {
     public void loadConfig(boolean loadMessage){
         String lang = Locale.getDefault().getLanguage();
         try {
-            config.createFileByDir("config",getPluginName());
+            config.createYmlFileByPath("config",getDefaultFilePath(""));
             loadConfig(lang);
             if(loadMessage) {
                 locale = "locale".equals(config.getString("player-locale"));
-                loadLocalMsg(lang, true);
+                config.createYmlFileByPath("message", getDefaultFilePath(""));
+                messages.put(lang, new FileConfigProcess().loadFile(getDefaultFilePath("message.yml")));
             }
         }catch(Exception e){
             getLogger().warning("Error when load config file, missing lang:" + lang + "\nUsing default lang en");
@@ -109,34 +112,24 @@ public abstract class WaterPlugin  implements Plugin {
     @Override
     public FileConfigProcess loadFile(String fileName,String extension) {
         FileConfigProcess fcp = new FileConfigProcess();
+        String fileString = fileName+"." + extension;
         try {
-            fcp.createFileByPath(fileName, getPluginName(),extension);
-            File file = new File(getDefaultFilePath(fileName + "." + extension));
+            fcp.createFileByPath(fileName,getDefaultFilePath(""),extension);
+            File file = new File(getDefaultFilePath(fileString));
             return fcp.loadFile(file);
         } catch (IOException e) {
-            logger.warning("Error loading file " + fileName + "." + extension);
+            logger.warning("Error loading file " + fileString);
             e.printStackTrace();
         }
         return fcp;
     }
-    public void reloadConfig(String dataName) throws IOException{
-        switch (dataName) {
-            case "config" -> config.loadFile(getDefaultFilePath("config.yml"));
-            case "message" -> pluginMessages.loadSource("locale/" + config.getString("locale")+ ".properties");
-            default -> reloadConfig();
-        }
-    }
 
-    public void loadLocalMsg(String lang, boolean  load) throws IOException {
-        if(load) {
-            config.createFileByDir("message", getPluginName());
-            messages.put(lang, new FileConfigProcess().loadFile(getDefaultFilePath("message.yml")));
+    public void reloadPluginMessage(){
+        try {
+            pluginMessages.loadSource("locale/" + config.getString("locale") + ".properties");
+        }catch (Exception e){
+            loadDefaultSource("en");
         }
-    }
-
-    @Override
-    public final String getDefaultSourcePath(String source, String extension, String lang){
-        return source + "/" + lang +"."+ extension;
     }
 
     @Override
@@ -150,9 +143,10 @@ public abstract class WaterPlugin  implements Plugin {
     }
     @Override
     public void checkUpdate(String owner, String repositories){
-        if (!Boolean.TRUE.equals(config.getBoolean("check-update.enable"))) { return; }
+        if (! config.getBoolean("check-update.enable",false)) return;
         getLogger().info(getPluginMessage("checking-update-message"));
-        Updater.CheckForUpdata(owner, repositories, Updater.parseVersion(getPluginInfo("version"))).thenAccept(updateInfo -> {
+        Updater.CheckForUpdate(owner, repositories, Updater.parseVersion(getPluginInfo("version")))
+                .thenAccept(updateInfo -> {
             if(updateInfo == null){
                 getLogger().warning(getPluginMessage("error-check-update-message"));
             }else{
@@ -161,16 +155,13 @@ public abstract class WaterPlugin  implements Plugin {
                         String link = (String) updateInfo.get("downloadLink");
                         logMsg(getPluginMessage("new-version-download-message").formatted(updateInfo.get("latestVersion")));
                         String pathDownload = "plugins/" + getPluginName() + updateInfo.get("latestVersion") +".jar";
-                        Updater.downloadFile(link, pathDownload).thenAccept(
-                                result -> {
-                                    if(result){
-                                        logger.info(Colors.parseColor(getPluginMessage("successfully-download-message").formatted(pathDownload)));
-                                    }else{
-                                        logger.warning(getPluginMessage("error-download-message").formatted(link));
-
-                                    }
-                                }
-                        );
+                        Updater.downloadFile(link, pathDownload).thenAccept(result -> {
+                            if(result){
+                                logger.info(Colors.parseColor(getPluginMessage("successfully-download-message").formatted(pathDownload)));
+                            }else{
+                                logger.warning(getPluginMessage("error-download-message").formatted(link));
+                            }
+                        });
                     }else{
                         logMsg(getPluginMessage("new-version-founded-message").formatted(updateInfo.get("latestVersion"),
                                 updateInfo.get("downloadLink")));
@@ -211,20 +202,22 @@ public abstract class WaterPlugin  implements Plugin {
     public static String getMessage(String key,String lang) {
         return locale ? messages.get(lang).getString(key) : getMessage(key);
     }
-    public static String getMessage(String key){return messages.get(Locale.getDefault().getLanguage()).getString(key);}
+    public static String getMessage(String key){
+        return messages.get(Locale.getDefault().getLanguage()).getString(key);
+    }
+
     public static String getPluginInfo(String key){
         return (String)pluginData.get(key);
     }
     public void showPluginTitle(String lineTitleDisplay){
-        for(String str : LineFontGenerator.parseLineText(lineTitleDisplay)) {
-            logMsg("§6%s§r".formatted(str));
+        for(String str : LineFontGenerator.parseLineText(lineTitleDisplay,1)) {
+            System.out.printf(Colors.parseColor( "§6%s§r%n"), str);
         }
-        logMsg("§e%s §6author: §7%s §6version: §7%s".formatted(getPluginInfo("name")
-                , getPluginInfo("author"), getPluginInfo("version")));
+        System.out.printf(Colors.parseColor("§e%s §6author: §7%s §6version: §7%s%n"), getPluginInfo("name")
+                , getPluginInfo("author"), getPluginInfo("version"));
     }
     public String getPluginInfo(){
         return "§6%s§r §ev§7%s§r".formatted(getPluginInfo("name"), getPluginInfo("version")) +
-                "§6 by: §7%s".formatted( getPluginInfo("author"))
-                + getPluginMessage("help-info-message").formatted(getPluginName(),getPluginName());
+                "§6 by: §7%s".formatted( getPluginInfo("author"));
     }
 }

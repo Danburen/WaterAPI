@@ -1,9 +1,11 @@
 package org.waterwood.io;
 
+import org.jspecify.annotations.NonNull;
 import org.waterwood.adapter.DataAdapter;
 import org.yaml.snakeyaml.DumperOptions;
 import org.yaml.snakeyaml.Yaml;
 
+import javax.annotation.Nullable;
 import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
@@ -51,6 +53,12 @@ public class FileConfigProcess extends FileConfiguration {
         File file = new File(filePath);
         return getFileMapData(file);
     }
+
+    @Override
+    public Map<String, Object> getAllData() {
+        return data;
+    }
+
     @Override
     public Map<String,Object> getFileMapData(File file) throws IOException{
         try(InputStream FIS = new FileInputStream(file)){
@@ -97,13 +105,12 @@ public class FileConfigProcess extends FileConfiguration {
         return get(key,data);
     }
 
-    @Deprecated
     @Override
-    public final <T> T get(String path){
+    public final @Nullable <T> T get(String path){
         return (T) getRaw(path);
     }
     @Override
-    public final <T> T get(String path,T defaultVal){
+    public final @NonNull <T> T get(String path, T defaultVal){
         Object value = get(path,data);
         return DataAdapter.toValue(value,defaultVal);
     }

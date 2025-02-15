@@ -1,22 +1,44 @@
 package org.waterwood.io;
 
+import org.jspecify.annotations.NonNull;
+import org.waterwood.adapter.DataAdapter;
+
+import javax.annotation.Nullable;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.*;
 
 public abstract class FileConfiguration extends MemoryProcess implements FileConfigBase {
-    public abstract <T> T get(String path);
-    public abstract <T> T get(String path, T defaultVal);
+
+    /**
+     * Get data from config file(source file .yml)
+     * <P></P>
+     * path separate by "." if it could not get the data from path
+     * this will return null instead
+     * @param path data key path
+     * @return data
+     */
+    public abstract @Nullable <T> T get(String path);
+    /**
+     * Get data from config file(source file .yml)
+     * <P></P>
+     * path separate by "." if it could not get the data from path
+     * this will return default instead of null
+     * @param path data key path
+     * @param defaultVal default value when get null
+     * @return data
+     */
+    public abstract @NonNull <T> T get(String path, T defaultVal);
     public abstract void set(String path, Object val, Map<String,Object> data);
     public abstract void set(String path, Object val);
     public abstract void save(File file,Map<String,Object> data) throws Exception;
     public abstract Map<String,Object> getFileMapData(String filePath) throws IOException;
-
+    public abstract Map<String,Object> getAllData();
     public abstract Map<String,Object> getFileMapData(File file) throws IOException;
-
     public abstract FileConfigProcess reload(String resourcePath) throws IOException;
     public abstract void loadSource(String... path) throws IOException;
+    @Deprecated
     public final Map<String,String> getStringMap(String path){
         return  getMap(path,String.class);
     }
@@ -40,7 +62,6 @@ public abstract class FileConfiguration extends MemoryProcess implements FileCon
     public final Integer getInteger(String path){
         return  get(path);
     }
-
     @Deprecated
     public final Double getDouble(String path){
         return  get(path);
@@ -58,22 +79,16 @@ public abstract class FileConfiguration extends MemoryProcess implements FileCon
         return (String) get(path);
     }
     public final Integer getInteger(String path,Integer defaultVal){
-        Integer val =  get(path);
-        return val == null ? defaultVal : val;
+        return get(path,defaultVal);
     }
-
     public final Long getLong(String path,Long defaultVal){
-        Long val =  get(path);
-        return val == null ? defaultVal : val;
+        return get(path,defaultVal);
     }
-
     public final Double getDouble(String path,Double defaultVal){
-        Double val = get(path);
-        return val == null ? defaultVal : val;
+        return  get(path,defaultVal);
     }
     public final Boolean getBoolean(String path,Boolean defaultVal){
-        Boolean val = get(path);
-        return val == null ? defaultVal : val;
+        return get(path,defaultVal);
     }
 
     public final List<String> getStringList(String path,List<String> defaultVal){
@@ -95,31 +110,15 @@ public abstract class FileConfiguration extends MemoryProcess implements FileCon
     }
 
     /**
-     * create file by jar dir path
-     * like PLUGIN_JAR_FILE/PLUGIN_NAME/FILE_NAME
-     * inner like {@link org.waterwood.io.FileConfigProcess#createFileByPath(String, String)}
-     * @param fileName filename created
-     * @param pluginName the file path output plus above add plugin_name instead
-     * @throws FileNotFoundException file not found exception
-     */
-    public void createFileByDir(String fileName, String pluginName) throws FileNotFoundException {
-        createFileByPath(fileName,getJarDir() + "/" + pluginName);
-    }
-
-    public void createFileByDir(String fileName, String pluginName,String extension) throws FileNotFoundException {
-        createFileByPath(fileName,getJarDir() + "/" + pluginName,extension);
-    }
-
-    /**
      * create yml file by a path
      * search file like filename.yml
      * search resource in FILENAME/[JVM LANG].yml
-     * @param fileName filename created
+     * @param fileNameWithoutExtension filename created
      * @param path the file path output
      * @throws FileNotFoundException file not found exception
      */
-    public void createFileByPath(String fileName,String path) throws FileNotFoundException{
-        createFileByPath(fileName,path,"yml");
+    public void createYmlFileByPath(String fileNameWithoutExtension, String path) throws FileNotFoundException{
+        createFileByPath(fileNameWithoutExtension,path,"yml");
     }
     /**
      * create file by a path

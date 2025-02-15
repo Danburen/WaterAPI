@@ -18,32 +18,35 @@ public abstract class Updater extends WebIO {
     /**
      * Checking for update , config  will automatically load.
      * API GET LIKE: https://api.github.com/repos/[NAME]/[REPOSITORIES]/releases/latest
-     * @param gitUserName GitHubUsername
-     * @param repositories your project's repositories
-     * @param currentVersion current version
+     * @param owner GitHubUsername
+     * @param repo your project's repositories
+     * @param currentVer current version
      * @return CompletableFuture contains update info
      */
-    public static CompletableFuture<Map<String, Object>> CheckForUpdata(String gitUserName, String repositories, Double currentVersion){
+    public static CompletableFuture<Map<String, Object>> CheckForUpdate(String owner, String repo, Double currentVer){
         return CompletableFuture.supplyAsync(() ->{
-            String url = "https://api.github.com/repos/%s/%s/releases/latest".formatted(gitUserName,repositories);
+            String url = "https://api.github.com/repos/"+ owner +"/"+ repo +"/releases/latest";
             String latestJSON = sendGetRequest(url);
             try {
                 JsonObject jsonObject = JsonParser.parseString(latestJSON).getAsJsonObject();
                 String downloadLink = null;
                 JsonArray assets = jsonObject.getAsJsonArray("assets");
+                String body = jsonObject.get("body").getAsString();
                 for (JsonElement asset : assets) {
                     downloadLink = asset.getAsJsonObject().get("browser_download_url").getAsString();
                     if (downloadLink != null) break;
                 }
                 String latestVersion = jsonObject.get("tag_name").getAsString();
                 double latest = parseVersion(latestVersion);
-                if (currentVersion >= latest) {
-                    return Map.of("latestVersion", latestVersion,"hasNewVersion", false,
-                            "status", 1);
+                if (currentVer >= latest) {
+                    return Map.of(
+                            "latestVersion", latestVersion,
+                            "hasNewVersion", false);
                 } else {
-                    return Map.of("downloadLink", downloadLink,
-                            "latestVersion", latestVersion, "hasNewVersion", true,
-                            "status", 1);
+                    return Map.of(
+                            "downloadLink", downloadLink,
+                            "latestVersion", latestVersion,
+                            "hasNewVersion", true);
                 }
             }catch (Exception e){
                 return null;
@@ -77,11 +80,12 @@ public abstract class Updater extends WebIO {
         String out;
         if(dotInd != -1){
             out = dotStr.substring(0,dotInd + 1) + dotStr.substring(dotInd + 1).replaceAll("\\.","");
-            double num = Double.parseDouble(out);
-            return num;
+            return Double.parseDouble(out);
         }else{
             return 0.0f;
         }
     }
+
+
 }
 

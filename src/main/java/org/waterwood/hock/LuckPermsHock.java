@@ -4,6 +4,7 @@ import net.luckperms.api.LuckPerms;
 import net.luckperms.api.LuckPermsProvider;
 import net.luckperms.api.model.group.Group;
 import net.luckperms.api.model.user.User;
+import org.jspecify.annotations.NonNull;
 
 /**
  * A class for fetching hock for <a href="https://luckperms.net/">LuckPerms</a>
@@ -32,14 +33,14 @@ public abstract class LuckPermsHock implements HockBase {
         }
         return true;
     }
-
+    @NonNull
     private static String getPlayerMetaData(String playerName, UserMetaDataFetcher fetcher){
         if(! hasLuckPerms){
             return "";
         }
         User user = api.getUserManager().getUser(playerName);
         if (user == null){ return ""; }
-        return fetcher.getMetaData(user);
+        return fetcher.getMetaData(user) == null ? "" : fetcher.getMetaData(user);
     }
 
     /**
@@ -47,6 +48,7 @@ public abstract class LuckPermsHock implements HockBase {
      * @param playerName player's name
      * @return prefix
      */
+    @NonNull
     public static String getPlayerPrefix(String playerName){
         return getPlayerMetaData(playerName,user -> user.getCachedData().getMetaData().getPrefix());
     }
@@ -56,6 +58,7 @@ public abstract class LuckPermsHock implements HockBase {
      * @param playerName player's name
      * @return suffix
      */
+    @NonNull
     public static String getPlayerSuffix(String playerName){
         return getPlayerMetaData(playerName,user -> user.getCachedData().getMetaData().getSuffix());
     }
@@ -65,11 +68,15 @@ public abstract class LuckPermsHock implements HockBase {
      * @param playerName player's name
      * @return player group's display string
      */
+    @NonNull
     public static String getPlayerGroupDisplay(String playerName){
         if(hasLuckPerms) {
             User user = api.getUserManager().getUser(playerName);
-            Group group = api.getGroupManager().getGroup(user.getPrimaryGroup());
+            Group group;
+            if (user == null) return "";
+            group = api.getGroupManager().getGroup(user.getPrimaryGroup());
             if (group == null) { return ""; }
+            if (group.getDisplayName() == null || group.getDisplayName().isEmpty()) { return ""; }
             return group.getDisplayName();
         }
         return "";

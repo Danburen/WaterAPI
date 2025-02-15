@@ -61,13 +61,13 @@ public class BukkitPlugin extends JavaPlugin implements Plugin {
     }
     @Override
     public String getDefaultFilePath(String file){
-        return getDataFolder() + "\\" + file;
+        return getDataFolder() + File.separator + file;
     }
     @Override
     public void loadConfig(boolean loadMessage){
         String lang = Locale.getDefault().getLanguage();
         try {
-            config.createFileByPath("config",getDataFolder().toString());
+            config.createYmlFileByPath("config",getDataFolder().toString());
             loadConfig(lang);
             if(loadMessage) {
                 locale = "locale".equals(config.getString("player-locale"));
@@ -97,24 +97,19 @@ public class BukkitPlugin extends JavaPlugin implements Plugin {
         }
     }
 
-    public void reloadConfig(String dataName) throws IOException{
-        switch (dataName) {
-            case "config" -> config.loadFile(getDefaultFilePath("config.yml"));
-            case "message" -> pluginMessages.loadSource("locale/" + config.getString("locale")+ ".properties");
-            default -> reloadConfig();
+    public void reloadPluginMessage(){
+        try {
+            pluginMessages.loadSource("locale/" + config.getString("locale") + ".properties");
+        }catch (Exception e){
+            loadDefaultSource("en");
         }
     }
 
     public void loadLocalMsg(String lang, boolean  load) throws IOException {
         if(load) {
-            config.createFileByPath("message", getDataFolder().toString());
+            config.createYmlFileByPath("message", getDataFolder().toString());
             messages.put(lang, new FileConfigProcess().loadFile(getDefaultFilePath("message.yml")));
         }
-    }
-
-    @Override
-    public final String getDefaultSourcePath(String source, String extension, String lang){
-        return source + "/" + lang +"."+ extension;
     }
 
     @Override
@@ -128,9 +123,9 @@ public class BukkitPlugin extends JavaPlugin implements Plugin {
     }
     @Override
     public void checkUpdate(String owner, String repositories){
-        if (!Boolean.TRUE.equals(config.getBoolean("check-update.enable"))) { return; }
+        if (! config.getBoolean("check-update.enable",false)) return;
         getLogger().info(getPluginMessage("checking-update-message"));
-        Updater.CheckForUpdata(owner, repositories, Updater.parseVersion(getPluginInfo("version"))).thenAccept(updateInfo -> {
+        Updater.CheckForUpdate(owner, repositories, Updater.parseVersion(getPluginInfo("version"))).thenAccept(updateInfo -> {
             if(updateInfo == null){
                 getLogger().warning(getPluginMessage("error-check-update-message"));
             }else{
@@ -226,7 +221,7 @@ public class BukkitPlugin extends JavaPlugin implements Plugin {
         return (String)pluginData.get(key);
     }
     public void showPluginTitle(String lineTitleDisplay){
-        for(String str : LineFontGenerator.parseLineText(lineTitleDisplay)) {
+        for(String str : LineFontGenerator.parseLineText(lineTitleDisplay,1)) {
             logMsg(ChatColor.GOLD + str);
         }
         logMsg(Colors.coloredText("Author: %s Version: %s".formatted(

@@ -1,23 +1,28 @@
 package org.waterwood.io.DataBase;
 
 import java.sql.*;
+import org.h2.Driver;
 
 /**
- * A class to create SQLite connection
+ * A class to create H2DataBase connection
  * @since 1.1.0
  * @author Danburen
  */
-public abstract class SQLite {
+public abstract class H2DataBase {
     protected Connection connection;
-    public SQLite(String dbFilePath) {
+    public H2DataBase(String dbFilePath) {
         connection = connectToDatabase(dbFilePath);
     }
 
     public static Connection connectToDatabase(String dbFilePath) {
         try {
-            return DriverManager.getConnection("jdbc:sqlite:" + dbFilePath);
+            Class.forName("org.h2.Driver");
+            return DriverManager.getConnection("jdbc:h2:file:" + dbFilePath,"sa","");
         } catch (SQLException e) {
             System.out.println("Connection failed: " + e.getMessage());
+            return null;
+        } catch (ClassNotFoundException e) {
+            System.out.println("Driver not found: " + e.getMessage());
             return null;
         }
     }

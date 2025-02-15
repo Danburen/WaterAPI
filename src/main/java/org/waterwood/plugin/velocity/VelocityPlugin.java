@@ -21,6 +21,9 @@ public class VelocityPlugin extends WaterPlugin {
     public static List<String> getAllPlayerName(){
         return  server.getAllPlayers().stream().map(Player::getUsername).toList();
     }
+    public static int getPlayerCount(){
+        return server.getAllPlayers().size();
+    }
     public static List<UUID> getAllPlayerUUID(){
         return  server.getAllPlayers().stream().map(Player::getUniqueId).toList();
     }

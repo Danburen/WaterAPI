@@ -2,6 +2,7 @@ package org.waterwood.plugin.velocity.util;
 
 import com.velocitypowered.api.proxy.ProxyServer;
 import com.velocitypowered.api.scheduler.ScheduledTask;
+import org.apache.commons.lang3.ClassUtils;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -44,6 +45,7 @@ public class ScheduledManager {
             task.cancel();
             tasks.remove(taskName);
         }
+        System.out.println("task " + taskName + " cancelled");
     }
 
     /**
@@ -56,10 +58,10 @@ public class ScheduledManager {
      * @param repeatUnit repeat timeUtil
      */
     public void addDelayAndRepeatTask(String taskName, Runnable task ,long delay, TimeUnit timeUnit,long repeat,TimeUnit repeatUnit) {
-        taskCheck(taskName, () -> tasks.put(taskName,
-                proxyServer.getScheduler().buildTask(
-                        pluginInstance,task
-                ).delay(delay, timeUnit).repeat(repeat, repeatUnit).schedule()));
+        taskCheck(taskName, () -> tasks.put(taskName, proxyServer.getScheduler()
+                .buildTask(pluginInstance,task)
+                .delay(delay, timeUnit)
+                .repeat(repeat, repeatUnit).schedule()));
     }
 
     /**
@@ -70,10 +72,9 @@ public class ScheduledManager {
      * @param timeUnit time util
      */
     public void addRepeatTask(String taskName, Runnable task, long repeat,TimeUnit timeUnit) {
-        taskCheck(taskName, () -> tasks.put(taskName,
-                proxyServer.getScheduler().buildTask(
-                        pluginInstance,task
-                ).repeat(repeat, timeUnit).schedule()));
+        taskCheck(taskName, () -> tasks.put(taskName, proxyServer.getScheduler()
+                .buildTask(pluginInstance,task)
+                .repeat(repeat, timeUnit).schedule()));
     }
 
     /**
@@ -84,10 +85,10 @@ public class ScheduledManager {
      * @param timeUnit time util
      */
     public void addDelayTask(String taskName, Runnable task, long delay, TimeUnit timeUnit) {
-        taskCheck(taskName, () -> tasks.put(taskName,
-                proxyServer.getScheduler().buildTask(
-                        pluginInstance,task
-                ).delay(delay, timeUnit).schedule()));
+        taskCheck(taskName, () -> tasks.put(taskName, proxyServer.getScheduler()
+                .buildTask(pluginInstance,task)
+                .delay(delay, timeUnit)
+                .schedule()));
     }
 
     /**
@@ -95,12 +96,16 @@ public class ScheduledManager {
      * <p></p>
      * <b>If existed then cancel and do next</b>
      * @param taskName task name
-     * @param runnable runnable next
+     * @param handler task execute handler
      */
-    private void taskCheck(String taskName,Runnable runnable) {
+    private void taskCheck(String taskName,taskHandler handler) {
         if(tasks.containsKey(taskName)) {
             cancelTask(taskName);
         }
-        runnable.run();
+        handler.execute();
+    }
+
+    private interface taskHandler{
+        void execute();
     }
 }

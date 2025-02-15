@@ -106,8 +106,15 @@ public abstract class MemoryProcess {
             return null;
         }
     }
+
+    /**
+     * Return jar absolute path with plugin name and file name
+     * @param PluginName plugin name
+     * @param FileName file name
+     * @return absolute path with left sharp
+     */
     public String getPluginFilePath(String  PluginName, String FileName){
-        return getJarDir() + "/" +PluginName + "/" + FileName;
+        return getJarDir() + File.separator +PluginName + File.separator + FileName;
     }
     public boolean isResourceExist(String source){
         URL sourceURL = getClass().getClassLoader().getResource(source);
