@@ -26,6 +26,9 @@ public class ScheduledManager {
     public ScheduledManager(ProxyServer proxyServer,Object pluginInstance) {
         this.proxyServer = proxyServer;
         this.pluginInstance = pluginInstance;
+
+        //ensure task will not repeat added
+        proxyServer.getScheduler().tasksByPlugin(pluginInstance).forEach(ScheduledTask::cancel);
     }
 
     /**
@@ -45,7 +48,6 @@ public class ScheduledManager {
             task.cancel();
             tasks.remove(taskName);
         }
-        System.out.println("task " + taskName + " cancelled");
     }
 
     /**
