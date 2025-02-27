@@ -4,8 +4,12 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
+import org.waterwood.adapter.DataAdapter;
+import org.waterwood.io.web.utils.UpdateINFO;
 
 import java.io.IOException;
+import java.util.LinkedHashMap;
+import java.util.Locale;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 
@@ -23,7 +27,7 @@ public abstract class Updater extends WebIO {
      * @param currentVer current version
      * @return CompletableFuture contains update info
      */
-    public static CompletableFuture<Map<String, Object>> CheckForUpdate(String owner, String repo, Double currentVer){
+    public static CompletableFuture<UpdateINFO> CheckForUpdate(String owner, String repo, Double currentVer){
         return CompletableFuture.supplyAsync(() ->{
             String url = "https://api.github.com/repos/"+ owner +"/"+ repo +"/releases/latest";
             String latestJSON = sendGetRequest(url);
@@ -31,22 +35,18 @@ public abstract class Updater extends WebIO {
                 JsonObject jsonObject = JsonParser.parseString(latestJSON).getAsJsonObject();
                 String downloadLink = null;
                 JsonArray assets = jsonObject.getAsJsonArray("assets");
-                String body = jsonObject.get("body").getAsString();
                 for (JsonElement asset : assets) {
                     downloadLink = asset.getAsJsonObject().get("browser_download_url").getAsString();
                     if (downloadLink != null) break;
                 }
                 String latestVersion = jsonObject.get("tag_name").getAsString();
-                double latest = parseVersion(latestVersion);
+                double latest = DataAdapter.parseVersion(latestVersion);
                 if (currentVer >= latest) {
-                    return Map.of(
-                            "latestVersion", latestVersion,
-                            "hasNewVersion", false);
+                    return new UpdateINFO(null,null,false,null);
                 } else {
-                    return Map.of(
-                            "downloadLink", downloadLink,
-                            "latestVersion", latestVersion,
-                            "hasNewVersion", true);
+                    return new UpdateINFO(downloadLink,latestVersion,true,
+                            ChangelogGetter.getChangelog(owner,repo,latestVersion,
+                                    Locale.getDefault().getLanguage()));
                 }
             }catch (Exception e){
                 return null;
@@ -70,21 +70,7 @@ public abstract class Updater extends WebIO {
         });
     }
 
-    /**
-     * parse dotStr like(1.x.x) to double version value -> 1.xx
-     * @param dotStr String that contains dot.
-     * @return double version
-     */
-    public static double parseVersion(String dotStr){
-        int dotInd = dotStr.indexOf(".");
-        String out;
-        if(dotInd != -1){
-            out = dotStr.substring(0,dotInd + 1) + dotStr.substring(dotInd + 1).replaceAll("\\.","");
-            return Double.parseDouble(out);
-        }else{
-            return 0.0f;
-        }
-    }
-
 }
+
+
 

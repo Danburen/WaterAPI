@@ -2,6 +2,7 @@ package org.waterwood.io.web;
 
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
+import org.waterwood.enums.TAGS;
 import org.waterwood.utils.Translate;
 
 import javax.annotation.Nullable;
@@ -16,9 +17,9 @@ public class ChangelogGetter extends WebIO{
      * Get the changelog file from repositories
      * @param rawVer Raw version string that like 1.0.0
      * @param lang lang to get if contain none than get en file
-     * @return changelog file.
+     * @return changelog map of log.
      */
-    public static @Nullable String getChangelog(String owner, String repo, String rawVer, String lang){
+    public static @Nullable Map<TAGS,String> getChangelog(String owner, String repo, String rawVer, String lang){
         String filePrefix = "changelog/v" + rawVer + "/" + "changelog_v" + rawVer + "_";
         String defaultPath = filePrefix + "en.md";
         String filePath = filePrefix + lang + ".md";
@@ -32,12 +33,7 @@ public class ChangelogGetter extends WebIO{
             if(encoding.equalsIgnoreCase("base64")){
                 content = new String(Base64.getMimeDecoder().decode(content), StandardCharsets.UTF_8);
             }
-            // ...
-            Map<String,String> sections = extractLogSections(content);
-            sections.forEach((k,v) ->{
-                System.out.println(k + ": " + v);
-            });
-            return sections.get(Translate.parseLang("New Feature",lang));
+            return extractLogSections(content);
         }catch (Exception e){
             return null;
         }
@@ -48,8 +44,8 @@ public class ChangelogGetter extends WebIO{
      * @param original original string
      * @return Map of sections
      */
-    public static Map<String,String> extractLogSections(String original){
-        Map<String,String> sections = new LinkedHashMap<>();
+    public static Map<TAGS,String> extractLogSections(String original){
+        Map<TAGS,String> sections = new LinkedHashMap<>();
         String[] lines = original.split("\n");
         String currentTitle = null;
         StringBuilder currentContent = null;
@@ -60,12 +56,13 @@ public class ChangelogGetter extends WebIO{
                     currentTitle = line.replace("#","").trim();
                 }else{
                     if(currentContent != null){
-                        sections.put(currentTitle, currentContent.toString());
+                        putSection(sections,currentTitle, currentContent.toString());
                         currentContent = null;
                         currentTitle = null;
                     }
                 }
             }else{
+                if(currentTitle == null) continue;
                 if(currentContent == null){
                     currentContent = new StringBuilder(line);
                 }else{
@@ -74,8 +71,15 @@ public class ChangelogGetter extends WebIO{
             }
         }
         if(currentContent != null){
-            sections.put(currentTitle, currentContent.toString());
+            putSection(sections,currentTitle, currentContent.toString());
         }
         return sections;
+    }
+
+    private static void putSection(Map<TAGS,String> section,String title, String content){
+        TAGS tag = TAGS.getTag(title);
+        if(tag != null){
+            section.put(tag, content);
+        }
     }
 }

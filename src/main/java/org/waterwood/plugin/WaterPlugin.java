@@ -1,5 +1,7 @@
 package org.waterwood.plugin;
 
+import org.waterwood.adapter.DataAdapter;
+import org.waterwood.io.FileConfiguration;
 import org.waterwood.utils.Colors;
 import org.waterwood.utils.LineFontGenerator;
 import org.waterwood.io.FileConfigProcess;
@@ -7,9 +9,7 @@ import org.waterwood.io.web.Updater;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.HashMap;
-import java.util.Locale;
-import java.util.Map;
+import java.util.*;
 import java.util.logging.Logger;
 
 
@@ -145,26 +145,25 @@ public abstract class WaterPlugin  implements Plugin {
     public void checkUpdate(String owner, String repositories){
         if (! config.getBoolean("check-update.enable",false)) return;
         getLogger().info(getPluginMessage("checking-update-message"));
-        Updater.CheckForUpdate(owner, repositories, Updater.parseVersion(getPluginInfo("version")))
+        Updater.CheckForUpdate(owner, repositories, DataAdapter.parseVersion(getPluginInfo("version")))
                 .thenAccept(updateInfo -> {
             if(updateInfo == null){
                 getLogger().warning(getPluginMessage("error-check-update-message"));
             }else{
-                if((boolean)updateInfo.get("hasNewVersion")){
+                if(updateInfo.IS_NEW_VERSION_AVAILABLE()){
                     if(Boolean.TRUE.equals(config.get("check-update.auto-download"))){
-                        String link = (String) updateInfo.get("downloadLink");
-                        logMsg(getPluginMessage("new-version-download-message").formatted(updateInfo.get("latestVersion")));
-                        String pathDownload = "plugins/" + getPluginName() + updateInfo.get("latestVersion") +".jar";
+                        String link = updateInfo.DOWNLOAD_URL();
+                        logMsg(getPluginMessage("new-version-download-message").formatted(updateInfo.LATEST_VERSION()));
+                        String pathDownload = "plugins/" + getPluginName() + updateInfo.LATEST_VERSION() +".jar";
                         Updater.downloadFile(link, pathDownload).thenAccept(result -> {
                             if(result){
-                                logger.info(Colors.parseColor(getPluginMessage("successfully-download-message").formatted(pathDownload)));
+                                logMsg(getPluginMessage("successfully-download-message").formatted(pathDownload));
                             }else{
                                 logger.warning(getPluginMessage("error-download-message").formatted(link));
                             }
                         });
                     }else{
-                        logMsg(getPluginMessage("new-version-founded-message").formatted(updateInfo.get("latestVersion"),
-                                updateInfo.get("downloadLink")));
+                        logMsg(getPluginMessage("new-version-info-message"));
                     }
                 }else{
                     logMsg(getPluginMessage("latest-version-message"));
@@ -173,17 +172,23 @@ public abstract class WaterPlugin  implements Plugin {
         });
     }
     @Override
-    public void checkUpdate(String owner, String repositories, String configVersion){
+    public void checkUpdate(String owner, String repositories, String configVersion, FileConfiguration... configs){
         checkUpdate(owner,repositories);
-        String configText = getConfigs().getString("config-version");
-        try{
-            final double CONFIG_VERSION = Updater.parseVersion(configText);
-            final double AVAILABLE_VERSION = Updater.parseVersion(configVersion);
-            if(AVAILABLE_VERSION > CONFIG_VERSION){
-                logger.warning(getPluginMessage("config-file-out-date-message"));
+        List<Double> configVersions = Arrays.stream(configs)
+                .map(config-> config.getString("config-version","0.0.0"))
+                .map(DataAdapter::parseVersion)
+                .toList();
+        List<String> outDataFileName = new ArrayList<>();
+        final double AVAILABLE_VERSION = DataAdapter.parseVersion(configVersion);
+        boolean isOutOfData = false;
+        for(int i = 0 ; i < configVersions.size() ; i++){
+            if(configVersions.get(i) < AVAILABLE_VERSION){
+                outDataFileName.add(new File(configs[i].getDataFilePath()).getName());
+                isOutOfData = true;
             }
-        }catch (NullPointerException e){
-            logger.warning(getPluginMessage("config-file-out-date-message"));
+        }
+        if(isOutOfData){
+            logger.warning(getPluginMessage("config-file-out-date-message").formatted(outDataFileName));
         }
     }
     @Override

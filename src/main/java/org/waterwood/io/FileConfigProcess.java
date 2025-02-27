@@ -16,6 +16,7 @@ import java.util.stream.Collectors;
 
 public class FileConfigProcess extends FileConfiguration {
     private Map<String,Object> data;
+    private static String DATA_FILE_PATH;
     Yaml yaml = new Yaml(getDumperOptions());
     @Override
     public void set(String path, Object val, Map<String, Object>  data){
@@ -41,11 +42,17 @@ public class FileConfigProcess extends FileConfiguration {
     }
     public FileConfigProcess loadFile(String filePath) throws IOException{
         data = getFileMapData(filePath);
+        DATA_FILE_PATH = filePath;
         return this;
     }
     public FileConfigProcess loadFile(File file) throws IOException{
         data = getFileMapData(file);
+        DATA_FILE_PATH = file.getPath();
         return this;
+    }
+
+    public @Nullable String getDataFilePath(){
+        return DATA_FILE_PATH;
     }
 
     @Override
@@ -175,4 +182,5 @@ public class FileConfigProcess extends FileConfiguration {
         options.setPrettyFlow(true);
         return options;
     }
+
 }

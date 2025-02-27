@@ -1,5 +1,7 @@
 package org.waterwood.utils;
 
+import javax.annotation.Nullable;
+
 /**
  * A class for translation
  * Only for signal words
@@ -7,8 +9,7 @@ package org.waterwood.utils;
  * @author Danburen
  */
 public class Translate {
-
-    enum LANG {
+    public enum LANG {
         EN(new String[]{
                 "New Feature",
                 "Fixed",
@@ -46,5 +47,9 @@ public class Translate {
         }catch(IllegalArgumentException e){
             return engStr;
         }
+    }
+
+    public @Nullable LANG getLang(String engStr) {
+        return LANG.valueOf(engStr.toUpperCase());
     }
 }

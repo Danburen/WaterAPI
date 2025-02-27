@@ -1,6 +1,7 @@
 package org.waterwood.plugin;
 
 import org.waterwood.io.FileConfigProcess;
+import org.waterwood.io.FileConfiguration;
 
 import java.util.logging.Logger;
 
@@ -23,8 +24,10 @@ public interface Plugin {
     void loadConfig(boolean loadMessage);
     void reloadConfig();
     void checkUpdate(String owner, String repositories);
+
+    void checkUpdate(String owner, String repositories, String configVersion, FileConfiguration... configs);
+
     String getLocale();
-    void checkUpdate(String owner, String repositories, String configVersion);
 
     /**
      * Get a source loaded {@link FileConfigProcess} class

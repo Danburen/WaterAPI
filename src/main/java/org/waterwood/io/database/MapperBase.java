@@ -1,4 +1,4 @@
-package org.waterwood.io.DataBase;
+package org.waterwood.io.database;
 
 public interface MapperBase {
     void createTable();

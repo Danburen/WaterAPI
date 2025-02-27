@@ -139,4 +139,5 @@ public abstract class FileConfiguration extends MemoryProcess implements FileCon
             throw new FileNotFoundException();
         }
     }
+    public abstract String getDataFilePath();
 }

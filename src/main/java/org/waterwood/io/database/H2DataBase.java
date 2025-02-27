@@ -1,7 +1,6 @@
-package org.waterwood.io.DataBase;
+package org.waterwood.io.database;
 
 import java.sql.*;
-import org.h2.Driver;
 
 /**
  * A class to create H2DataBase connection

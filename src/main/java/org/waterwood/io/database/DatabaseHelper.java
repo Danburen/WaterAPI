@@ -1,4 +1,4 @@
-package org.waterwood.io.DataBase;
+package org.waterwood.io.database;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -16,6 +16,13 @@ public class DatabaseHelper {
         executeSQL(conn, sql, setter, "");
     }
 
+    /**
+     * Execute SQL,auto handel <b>All Exceptions</b> Includes handler's Exceptions
+     * @param conn connection
+     * @param sql sql string
+     * @param setter sql statement setter
+     * @param handler handler
+     */
     public static void executeSQL(Connection conn, String sql,SQLStatementSetter setter,SQLResultSetHandler handler) {
         executeSQL(conn, sql, setter, "",handler);
     }
@@ -52,7 +59,7 @@ public class DatabaseHelper {
             ResultSet rs = stmt.executeQuery();
             handler.handleResultSet(rs);
         } catch (SQLException e) {
-            System.out.println("SQL Error: " + errorMessage + " \nsource: " + e.getMessage());
+            System.out.println("SQL Error: " + errorMessage + " source: " + e.getMessage());
         }
     }
 

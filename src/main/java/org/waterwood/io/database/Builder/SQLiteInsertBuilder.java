@@ -1,4 +1,4 @@
-package org.waterwood.io.DataBase.Builder;
+package org.waterwood.io.database.Builder;
 
 import java.util.ArrayList;
 import java.util.List;

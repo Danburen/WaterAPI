@@ -93,4 +93,20 @@ public class DataAdapter {
     public static Double roundToOneDecimal(Double value){
         return Math.round(value * 10.0) / 10.0;
     }
+
+    /**
+     * parse dotStr like(1.x.x) to double version value -> 1.xx
+     * @param dotStr String that contains dot.
+     * @return double version
+     */
+    public static double parseVersion(String dotStr){
+        int dotInd = dotStr.indexOf(".");
+        String out;
+        if(dotInd != -1){
+            out = dotStr.substring(0,dotInd + 1) + dotStr.substring(dotInd + 1).replaceAll("\\.","");
+            return Double.parseDouble(out);
+        }else{
+            return 0.0f;
+        }
+    }
 }
