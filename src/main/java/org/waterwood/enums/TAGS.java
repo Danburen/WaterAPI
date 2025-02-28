@@ -11,7 +11,7 @@ public enum TAGS {
     NEW_FEATURES("New Features"),
     FIXED("Fixed"),
     CHANGED("Changed"),
-    KNOWN_BUGS("Known Bugs");
+    KNOWN_ISSUES("Known Issues");
 
     private final String friendlyName;
     TAGS(String friendlyName){
@@ -27,7 +27,7 @@ public enum TAGS {
             case "New Features" -> TAGS.NEW_FEATURES;
             case "Fixed" -> TAGS.FIXED;
             case "Changed" -> TAGS.CHANGED;
-            case "Known Bugs" -> TAGS.KNOWN_BUGS;
+            case "Known Issues" -> TAGS.KNOWN_ISSUES;
             default -> null;
         };
     }
