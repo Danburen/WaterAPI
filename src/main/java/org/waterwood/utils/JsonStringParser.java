@@ -2,10 +2,7 @@ package org.waterwood.utils;
 
 import com.google.gson.*;
 
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * A class to parse other value to json
@@ -36,6 +33,15 @@ public class JsonStringParser {
             jsonObject.add(keyNames[i],jsonArray);
         }
         return jsonObject.toString();
+    }
+
+    /**
+     * Convert HashSet to Json Array String
+     * @param set hash set
+     * @return json array string
+     */
+    public static String hashSetToJsonArray(Set<?> set){
+        return new Gson().toJsonTree(set).toString();
     }
 
     /**
