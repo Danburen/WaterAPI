@@ -1,6 +1,7 @@
 package org.waterwood.plugin;
 
 import org.waterwood.adapter.DataAdapter;
+import org.waterwood.enums.TAGS;
 import org.waterwood.io.FileConfiguration;
 import org.waterwood.utils.Colors;
 import org.waterwood.utils.LineFontGenerator;
@@ -152,6 +153,11 @@ public abstract class WaterPlugin  implements Plugin {
             }else{
                 if(updateInfo.IS_NEW_VERSION_AVAILABLE()){
                     if(Boolean.TRUE.equals(config.get("check-update.auto-download"))){
+                        Map<TAGS,String> updateMsg = updateInfo.CHANGE_INFO();
+                        if(updateMsg != null){
+                            Optional.ofNullable(updateMsg.get(TAGS.NEW_FEATURES)).ifPresent(this::logMsg);
+                            Optional.ofNullable(updateMsg.get(TAGS.FIXED)).ifPresent(this::logMsg);
+                        }
                         String link = updateInfo.DOWNLOAD_URL();
                         logMsg(getPluginMessage("new-version-download-message").formatted(updateInfo.LATEST_VERSION()));
                         String pathDownload = "plugins/" + getPluginName() + updateInfo.LATEST_VERSION() +".jar";
