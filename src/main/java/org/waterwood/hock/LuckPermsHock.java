@@ -62,7 +62,6 @@ public abstract class LuckPermsHock implements HockBase {
     public static String getPlayerSuffix(String playerName){
         if(hasLuckPerms){
             return getPlayerMetaData(playerName,user -> user.getCachedData().getMetaData().getSuffix());
-
         }
         return "";
     }
