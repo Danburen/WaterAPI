@@ -69,7 +69,9 @@ public abstract class WaterPlugin  implements Plugin {
                 messages.put(lang, new FileConfigProcess().loadFile(getDefaultFilePath("message.yml")));
             }
         }catch(Exception e){
-            getLogger().warning("Error when load config file, missing lang:" + lang + "\nUsing default lang en");
+            getLogger().warning("Error when load config file , please check your config file.");
+            getLogger().warning("Please check if there are any formatting issues in file(config.yml & message.yml)");
+            getLogger().warning(e.getMessage());
             loadDefaultSource("en");
         }
     }

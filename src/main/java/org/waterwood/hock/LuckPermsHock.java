@@ -35,12 +35,9 @@ public abstract class LuckPermsHock implements HockBase {
     }
     @NonNull
     private static String getPlayerMetaData(String playerName, UserMetaDataFetcher fetcher){
-        if(! hasLuckPerms){
-            return "";
-        }
-        User user = api.getUserManager().getUser(playerName);
-        if (user == null){ return ""; }
-        return fetcher.getMetaData(user) == null ? "" : fetcher.getMetaData(user);
+            User user = api.getUserManager().getUser(playerName);
+            if (user == null){ return ""; }
+            return fetcher.getMetaData(user) == null ? "" : fetcher.getMetaData(user);
     }
 
     /**
@@ -50,7 +47,10 @@ public abstract class LuckPermsHock implements HockBase {
      */
     @NonNull
     public static String getPlayerPrefix(String playerName){
-        return getPlayerMetaData(playerName,user -> user.getCachedData().getMetaData().getPrefix());
+        if(hasLuckPerms){
+            return getPlayerMetaData(playerName,user -> user.getCachedData().getMetaData().getPrefix());
+        }
+        return "";
     }
 
     /**
@@ -60,7 +60,11 @@ public abstract class LuckPermsHock implements HockBase {
      */
     @NonNull
     public static String getPlayerSuffix(String playerName){
-        return getPlayerMetaData(playerName,user -> user.getCachedData().getMetaData().getSuffix());
+        if(hasLuckPerms){
+            return getPlayerMetaData(playerName,user -> user.getCachedData().getMetaData().getSuffix());
+
+        }
+        return "";
     }
 
     /**
