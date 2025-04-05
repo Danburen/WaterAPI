@@ -8,10 +8,10 @@ import javax.annotation.Nullable;
  * An enum holder tag and words
  */
 public enum TAGS {
-    NEW_FEATURES("New Features"),
+    NEW_FEATURES("Features"),
     FIXED("Fixed"),
     CHANGED("Changed"),
-    KNOWN_ISSUES("Known Issues");
+    KNOWN_ISSUES("Issues");
 
     private final String friendlyName;
     TAGS(String friendlyName){

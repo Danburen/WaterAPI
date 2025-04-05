@@ -15,12 +15,11 @@ public class ChangelogGetter extends WebIO{
 
     /**
      * Get the changelog file from repositories
-     * @param rawVer Raw version string that like 1.0.0
      * @param lang lang to get if contain none than get en file
      * @return changelog map of log.
      */
-    public static @Nullable Map<TAGS,String> getChangelog(String owner, String repo, String rawVer, String lang){
-        String filePrefix = "changelog/v" + rawVer + "/" + "changelog_v" + rawVer + "_";
+    public static @Nullable Map<TAGS,String> getChangelog(String owner, String repo, int major,int minor, int patch, String lang){
+        String filePrefix = String.format("changelog/v%d/changelog_v%d.%d_", major, major, minor);
         String defaultPath = filePrefix + "en.md";
         String filePath = filePrefix + lang + ".md";
         String apiURL = "https://api.github.com/repos/" + owner + "/" + repo + "/contents/" + filePath;
@@ -33,46 +32,66 @@ public class ChangelogGetter extends WebIO{
             if(encoding.equalsIgnoreCase("base64")){
                 content = new String(Base64.getMimeDecoder().decode(content), StandardCharsets.UTF_8);
             }
-            return extractLogSections(content);
+            return extractLogSections(content,major,minor,patch);
         }catch (Exception e){
             return null;
         }
     }
 
     /**
-     * Extract log sections form a string
-     * @param original original string
-     * @return Map of sections
+     * Extract log sections for a specific version from a changelog string
+     * @param original The original changelog content
+     * @param major Major version number to extract
+     * @param minor Minor version number to extract
+     * @param patch Patch version number to extract
+     * @return Map of sections for the specified version
      */
-    public static Map<TAGS,String> extractLogSections(String original){
-        Map<TAGS,String> sections = new LinkedHashMap<>();
+    public static Map<TAGS,String> extractLogSections(String original,int major,int minor, int patch){
+        Map<TAGS, String> sections = new LinkedHashMap<>();
         String[] lines = original.split("\n");
         String currentTitle = null;
         StringBuilder currentContent = null;
+        boolean inTargetVersion = false;
+        String targetVersionHeader = String.format("## [%d.%d.%d]", major, minor, patch);
 
         for (String line : lines) {
-            if(line.startsWith("###")){
-                if(currentTitle == null){
-                    currentTitle = line.replace("#","").trim();
-                }else{
-                    if(currentContent != null){
-                        putSection(sections,currentTitle, currentContent.toString());
-                        currentContent = null;
-                        currentTitle = null;
+            // Check if we've found our target version section
+            if (line.startsWith("## ") && line.contains(targetVersionHeader)) {
+                inTargetVersion = true;
+                continue;
+            }
+            // If we encounter another version header while processing, stop
+            if (inTargetVersion && line.startsWith("## ")) {
+                break;
+            }
+            // Only process content if we're in the target version section
+            if (inTargetVersion) {
+                if (line.startsWith("###")) {
+                    if (currentTitle == null) {
+                        currentTitle = line.replace("#", "").trim();
+                    } else {
+                        if (currentContent != null) {
+                            putSection(sections, currentTitle, currentContent.toString());
+                            currentContent = null;
+                        }
+                        currentTitle = line.replace("#", "").trim();
                     }
-                }
-            }else{
-                if(currentTitle == null) continue;
-                if(currentContent == null){
-                    currentContent = new StringBuilder(line);
-                }else{
-                    currentContent.append("\n").append(line);
+                } else {
+                    if (currentTitle == null) continue;
+                    if (currentContent == null) {
+                        currentContent = new StringBuilder(line);
+                    } else {
+                        currentContent.append("\n").append(line);
+                    }
                 }
             }
         }
-        if(currentContent != null){
-            putSection(sections,currentTitle, currentContent.toString());
+
+        // Add the last section if it exists
+        if (currentContent != null) {
+            putSection(sections, currentTitle, currentContent.toString());
         }
+
         return sections;
     }
 

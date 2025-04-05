@@ -6,6 +6,7 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import org.waterwood.adapter.DataAdapter;
 import org.waterwood.io.web.utils.UpdateINFO;
+import org.waterwood.utils.Parser;
 
 import java.io.IOException;
 import java.util.LinkedHashMap;
@@ -44,8 +45,12 @@ public abstract class Updater extends WebIO {
                 if (currentVer >= latest) {
                     return new UpdateINFO(null,null,false,null);
                 } else {
+                    int[] version = Parser.parseVersionToArray(latestVersion);
+                    int major = version[0];
+                    int minor = version[1];
+                    int patch = version[2];
                     return new UpdateINFO(downloadLink,latestVersion,true,
-                            ChangelogGetter.getChangelog(owner,repo,latestVersion,
+                            ChangelogGetter.getChangelog(owner,repo,major,minor,patch,
                                     Locale.getDefault().getLanguage()));
                 }
             }catch (Exception e){
