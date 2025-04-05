@@ -95,7 +95,6 @@ public class ChangelogGetter extends WebIO{
 
     private static void putSection(Map<TAGS,String> section,String title, String content,String lang){
         TAGS tag = TAGS.getTag(title,lang);
-        System.out.println(tag);
         if(tag != null){
             section.put(tag, content);
         }

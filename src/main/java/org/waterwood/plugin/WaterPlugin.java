@@ -7,6 +7,7 @@ import org.waterwood.utils.Colors;
 import org.waterwood.utils.LineFontGenerator;
 import org.waterwood.io.FileConfigProcess;
 import org.waterwood.io.web.Updater;
+import org.waterwood.utils.Translate;
 
 import java.io.File;
 import java.io.IOException;
@@ -155,11 +156,7 @@ public abstract class WaterPlugin  implements Plugin {
             }else{
                 if(updateInfo.IS_NEW_VERSION_AVAILABLE()){
                     if(Boolean.TRUE.equals(config.get("check-update.auto-download"))){
-                        Map<TAGS,String> updateMsg = updateInfo.CHANGE_INFO();
-                        if(updateMsg != null){
-                            Optional.ofNullable(updateMsg.get(TAGS.FEATURES)).ifPresent(this::logMsg);
-                            Optional.ofNullable(updateMsg.get(TAGS.FIXES)).ifPresent(this::logMsg);
-                        }
+                        updateInfo.printUpdateInfo();
                         String link = updateInfo.DOWNLOAD_URL();
                         logMsg(getPluginMessage("new-version-download-message").formatted(updateInfo.LATEST_VERSION()));
                         String pathDownload = "plugins/" + getPluginName() + updateInfo.LATEST_VERSION() +".jar";

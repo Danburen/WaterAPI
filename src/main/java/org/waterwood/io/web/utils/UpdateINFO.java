@@ -43,4 +43,13 @@ public class UpdateINFO {
     public @Nullable Map<TAGS, String> CHANGE_INFO() {
         return CHANGE_INFO;
     }
+
+    public void printUpdateInfo(){
+        CHANGE_INFO.forEach((k,v)->{
+            System.out.println(k.getEnglishName());
+            if(v != null){
+                System.out.println(v);
+            }
+        });
+    }
 }
