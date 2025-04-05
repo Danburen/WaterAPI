@@ -11,13 +11,13 @@ import javax.annotation.Nullable;
 public class Translate {
     public enum LANG {
         EN(new String[]{
-                "New Feature",
-                "Fixed",
+                "Feature",
+                "Fixes",
                 "Changed",
-                "Known Bugs"
+                "Issues"
         }),
         ZH(new String[]{
-                "新特性",
+                "特性",
                 "修复",
                 "改动",
                 "已知问题"
@@ -34,19 +34,27 @@ public class Translate {
         }
     }
 
-    public static String parseLang(String engStr,String lang) {
-        try{
-            LANG code = LANG.valueOf(lang.toUpperCase());
-            int ind = 0;
-            for(int i = 0 ; i < LANG.EN.translations.length ; i++) {
-                if(LANG.EN.translations[i].equals(engStr)) {
-                    ind = i;
+    public static String parseLang(String input, String lang) {
+        LANG targetLang = LANG.valueOf(lang.toUpperCase());
+        String[] sourceTranslations = LANG.EN.getTranslations();
+        String[] targetTranslations = targetLang.getTranslations();
+
+        // 如果是中文输入，尝试反向匹配英文
+        if (lang.equalsIgnoreCase("ZH")) {
+            for (int i = 0; i < targetTranslations.length; i++) {
+                if (targetTranslations[i].equals(input)) {
+                    return sourceTranslations[i]; // 返回对应的英文
                 }
             }
-            return code.getTranslations()[ind];
-        }catch(IllegalArgumentException e){
-            return engStr;
         }
+
+        // 默认行为：英文→中文翻译
+        for (int i = 0; i < sourceTranslations.length; i++) {
+            if (sourceTranslations[i].equalsIgnoreCase(input)) {
+                return targetTranslations[i];
+            }
+        }
+        return input; // 未找到时返回原输入
     }
 
     public @Nullable LANG getLang(String engStr) {

@@ -135,8 +135,8 @@ public class BukkitPlugin extends JavaPlugin implements Plugin {
                             if(Boolean.TRUE.equals(config.get("check-update.auto-download"))){
                                 Map<TAGS,String> updateMsg = updateInfo.CHANGE_INFO();
                                 if(updateMsg != null){
-                                    Optional.ofNullable(updateMsg.get(TAGS.NEW_FEATURES)).ifPresent(BukkitPlugin::logMsg);
-                                    Optional.ofNullable(updateMsg.get(TAGS.FIXED)).ifPresent(BukkitPlugin::logMsg);
+                                    Optional.ofNullable(updateMsg.get(TAGS.FEATURES)).ifPresent(BukkitPlugin::logMsg);
+                                    Optional.ofNullable(updateMsg.get(TAGS.FIXES)).ifPresent(BukkitPlugin::logMsg);
                                 }
                                 String link = updateInfo.DOWNLOAD_URL();
                                 logMsg(getPluginMessage("new-version-download-message").formatted(updateInfo.LATEST_VERSION()));

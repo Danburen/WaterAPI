@@ -32,7 +32,7 @@ public class ChangelogGetter extends WebIO{
             if(encoding.equalsIgnoreCase("base64")){
                 content = new String(Base64.getMimeDecoder().decode(content), StandardCharsets.UTF_8);
             }
-            return extractLogSections(content,major,minor,patch);
+            return extractLogSections(content,major,minor,patch,lang);
         }catch (Exception e){
             return null;
         }
@@ -46,7 +46,7 @@ public class ChangelogGetter extends WebIO{
      * @param patch Patch version number to extract
      * @return Map of sections for the specified version
      */
-    public static Map<TAGS,String> extractLogSections(String original,int major,int minor, int patch){
+    public static Map<TAGS,String> extractLogSections(String original,int major,int minor, int patch,String lang){
         Map<TAGS, String> sections = new LinkedHashMap<>();
         String[] lines = original.split("\n");
         String currentTitle = null;
@@ -71,7 +71,7 @@ public class ChangelogGetter extends WebIO{
                         currentTitle = line.replace("#", "").trim();
                     } else {
                         if (currentContent != null) {
-                            putSection(sections, currentTitle, currentContent.toString());
+                            putSection(sections, currentTitle, currentContent.toString(),lang);
                             currentContent = null;
                         }
                         currentTitle = line.replace("#", "").trim();
@@ -86,17 +86,16 @@ public class ChangelogGetter extends WebIO{
                 }
             }
         }
-
         // Add the last section if it exists
         if (currentContent != null) {
-            putSection(sections, currentTitle, currentContent.toString());
+            putSection(sections, currentTitle, currentContent.toString(),lang);
         }
-
         return sections;
     }
 
-    private static void putSection(Map<TAGS,String> section,String title, String content){
-        TAGS tag = TAGS.getTag(title);
+    private static void putSection(Map<TAGS,String> section,String title, String content,String lang){
+        TAGS tag = TAGS.getTag(title,lang);
+        System.out.println(tag);
         if(tag != null){
             section.put(tag, content);
         }

@@ -157,8 +157,8 @@ public abstract class WaterPlugin  implements Plugin {
                     if(Boolean.TRUE.equals(config.get("check-update.auto-download"))){
                         Map<TAGS,String> updateMsg = updateInfo.CHANGE_INFO();
                         if(updateMsg != null){
-                            Optional.ofNullable(updateMsg.get(TAGS.NEW_FEATURES)).ifPresent(this::logMsg);
-                            Optional.ofNullable(updateMsg.get(TAGS.FIXED)).ifPresent(this::logMsg);
+                            Optional.ofNullable(updateMsg.get(TAGS.FEATURES)).ifPresent(this::logMsg);
+                            Optional.ofNullable(updateMsg.get(TAGS.FIXES)).ifPresent(this::logMsg);
                         }
                         String link = updateInfo.DOWNLOAD_URL();
                         logMsg(getPluginMessage("new-version-download-message").formatted(updateInfo.LATEST_VERSION()));
