@@ -137,7 +137,7 @@ public class BukkitPlugin extends JavaPlugin implements Plugin {
                                 String link = updateInfo.DOWNLOAD_URL();
                                 logMsg(getPluginMessage("new-version-download-message").formatted(updateInfo.LATEST_VERSION()));
                                 String pathDownload = "plugins/" + getPluginName() + updateInfo.LATEST_VERSION() +".jar";
-                                Updater.downloadFile(link, pathDownload).thenAccept(result -> {
+                                Updater.downloadFile(link, pathDownload, updateInfo.DOWNLOAD_SIZE()).thenAccept(result -> {
                                     if(result){
                                         logMsg(getPluginMessage("successfully-download-message").formatted(pathDownload));
                                     }else{

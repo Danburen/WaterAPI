@@ -13,15 +13,24 @@ import java.util.Map;
  */
 public class UpdateINFO {
     private final String DOWNLOAD_URL;
+    private final long DOWNLOAD_SIZE;
     private final String LATEST_VERSION;
     private final boolean NEW_VERSION_AVAILABLE;
     private final Map<TAGS,String> CHANGE_INFO;
 
-    public UpdateINFO(String downloadURL, String latestVersion, boolean newVersionAvailable, Map<TAGS,String> changeInfo) {
+    public UpdateINFO(String downloadURL,long downloadSize,String latestVersion, boolean newVersionAvailable, Map<TAGS,String> changeInfo) {
         this.DOWNLOAD_URL = downloadURL;
         this.LATEST_VERSION = latestVersion;
         this.NEW_VERSION_AVAILABLE = newVersionAvailable;
         this.CHANGE_INFO = changeInfo;
+        this.DOWNLOAD_SIZE = downloadSize;
+    }
+    public UpdateINFO() {
+        this.DOWNLOAD_URL = null;
+        this.LATEST_VERSION = null;
+        this.NEW_VERSION_AVAILABLE = false;
+        this.CHANGE_INFO = null;
+        this.DOWNLOAD_SIZE = 0;
     }
 
     public String DOWNLOAD_URL() {
@@ -30,6 +39,10 @@ public class UpdateINFO {
 
     public String LATEST_VERSION() {
         return LATEST_VERSION;
+    }
+
+    public long DOWNLOAD_SIZE() {
+        return DOWNLOAD_SIZE;
     }
 
     public Double LatestVersion() {

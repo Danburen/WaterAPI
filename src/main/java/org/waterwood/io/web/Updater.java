@@ -35,21 +35,23 @@ public abstract class Updater extends WebIO {
             try {
                 JsonObject jsonObject = JsonParser.parseString(latestJSON).getAsJsonObject();
                 String downloadLink = null;
+                long downloadSize = 0;
                 JsonArray assets = jsonObject.getAsJsonArray("assets");
                 for (JsonElement asset : assets) {
                     downloadLink = asset.getAsJsonObject().get("browser_download_url").getAsString();
+                    downloadSize = asset.getAsJsonObject().get("size").getAsLong();
                     if (downloadLink != null) break;
                 }
                 String latestVersion = jsonObject.get("tag_name").getAsString();
                 double latest = DataAdapter.parseVersion(latestVersion);
                 if (currentVer >= latest) {
-                    return new UpdateINFO(null,null,false,null);
+                    return new UpdateINFO();
                 } else {
                     int[] version = Parser.parseVersionToArray(latestVersion);
                     int major = version[0];
                     int minor = version[1];
                     int patch = version[2];
-                    return new UpdateINFO(downloadLink,latestVersion,true,
+                    return new UpdateINFO(downloadLink,downloadSize,latestVersion,true,
                             ChangelogGetter.getChangelog(owner,repo,major,minor,patch,
                                     Locale.getDefault().getLanguage()));
                 }
@@ -64,12 +66,13 @@ public abstract class Updater extends WebIO {
      * @param savedPath where file would be downloaded at.
      * @return CompletableFuture
      */
-    public static CompletableFuture<Boolean> downloadFile(String fileUrl, String savedPath){
+    public static CompletableFuture<Boolean> downloadFile(String fileUrl, String savedPath,long expiredFileSize){
         return CompletableFuture.supplyAsync(() -> {
             try {
-                download(fileUrl,savedPath);
+                download(fileUrl,savedPath,expiredFileSize);
                 return true;
             } catch (IOException e) {
+                System.out.println("Error downloading file");
                 return false;
             }
         });

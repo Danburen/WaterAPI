@@ -3,6 +3,8 @@ package org.waterwood.io.web;
 import java.io.*;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 
 public  abstract class WebIO {
     public static String sendGetRequest(String urlStr) {
@@ -28,7 +30,7 @@ public  abstract class WebIO {
         return result.toString();
     }
 
-    public static void download(String fileUrl,String savedPath) throws IOException{
+    public static void download(String fileUrl,String savedPath,long expectedSize) throws IOException{
         URL url = new URL(fileUrl);
         HttpURLConnection connection = (HttpURLConnection) url.openConnection();
         try (BufferedInputStream FIS = new BufferedInputStream(connection.getInputStream());
@@ -37,8 +39,14 @@ public  abstract class WebIO {
 
             byte[] buffer = new byte[1024];
             int byteRead;
+            long totalSize = 0;
             while ((byteRead = FIS.read(buffer, 0, 1024)) != -1) {
                 out.write(buffer, 0, byteRead);
+                totalSize += byteRead;
+            }
+            if (totalSize != expectedSize) {
+                Files.deleteIfExists(Paths.get(savedPath));
+                throw new IOException("Download file size is not match expired: " + expectedSize + " byte,but got: " + totalSize + " bytes");
             }
         } finally {
             connection.disconnect();
