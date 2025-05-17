@@ -20,6 +20,7 @@ public abstract class WaterPlugin implements Plugin {
     private static final Map<String,FileConfigProcess> messages = new HashMap<>();
     private static  FileConfigProcess pluginData;
     private static boolean locale = false;
+    private static WaterPlugin instance = null;
     public void initialization(){
         if(pluginData == null){
             try {
@@ -32,7 +33,12 @@ public abstract class WaterPlugin implements Plugin {
         logger = Logger.getLogger(getPluginInfo("name"));
     }
     public WaterPlugin(){
+        instance = this;
         initialization();
+    }
+
+    public static WaterPlugin getInstance(){
+        return instance;
     }
 
     @Override

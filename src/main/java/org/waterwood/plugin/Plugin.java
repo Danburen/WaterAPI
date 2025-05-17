@@ -7,10 +7,13 @@ import java.util.logging.Logger;
 
 
 public interface Plugin {
+    static Object getInstance() { return null; }
     void initialization();
     void loadConfig();
     void loadDefaultSource(String lang);
+
     Logger getLogger();
+
     /**
      * get default file path depends server type.
      * <b>file must be completed which contains file extension</b>

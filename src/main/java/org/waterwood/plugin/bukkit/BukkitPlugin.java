@@ -1,8 +1,5 @@
 package org.waterwood.plugin.bukkit;
 
-import org.bukkit.Bukkit;
-import org.bukkit.ChatColor;
-import org.bukkit.command.ConsoleCommandSender;
 import org.waterwood.adapter.DataAdapter;
 import org.waterwood.enums.COLOR;
 import org.waterwood.io.FileConfiguration;
@@ -25,6 +22,7 @@ public class BukkitPlugin extends JavaPlugin implements Plugin {
     private static final Map<String,FileConfigProcess> messages = new HashMap<>();
     private static  FileConfigProcess pluginData;
     private static boolean locale = false;
+    private static BukkitPlugin instance = null;
     public void initialization(){
         if(pluginData == null){
             try {
@@ -37,7 +35,12 @@ public class BukkitPlugin extends JavaPlugin implements Plugin {
         logger = Logger.getLogger(getPluginInfo("name"));
     }
     public BukkitPlugin(){
+        instance = this;
         initialization();
+    }
+
+    public static BukkitPlugin getInstance(){
+        return instance;
     }
 
     public void logMsg(String message){

@@ -13,7 +13,7 @@ public class MethodBase {
         return WaterPlugin.getPluginMessage(message);
     }
     protected static Logger getLogger(){
-        return WaterPlugin.getLogger();
+        return WaterPlugin.getInstance().getLogger();
     }
     protected static String getMessage(String message){
         return WaterPlugin.getMessage(message);
