@@ -1,6 +1,9 @@
 # WaterAPI
 ![bg_middle](https://github.com/user-attachments/assets/c1f25cc1-48b5-4896-b88e-61741e4e2da7)
 
+[![](https://www.jitpack.io/v/Danburen/WaterAPI.svg)](https://www.jitpack.io/#Danburen/WaterAPI)
+![](https://img.shields.io/github/v/release/Danburen/WaterAPI)
+
 ## 🤠 Introduction
   A useful tool to build up Minecraft Java Plugin in Velocity and bukkit plugin.
   Including serveral plugin hocks like [LuckPerms](https://luckperms.net/)
