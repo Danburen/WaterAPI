@@ -1,6 +1,7 @@
 package org.waterwood.plugin;
 
 import org.waterwood.adapter.DataAdapter;
+import org.waterwood.enums.COLOR;
 import org.waterwood.enums.TAGS;
 import org.waterwood.io.FileConfiguration;
 import org.waterwood.utils.Colors;
@@ -43,6 +44,11 @@ public abstract class WaterPlugin  implements Plugin {
     public void logMsg(String message){
         logger.info(Colors.parseColor(message,false));
     }
+
+    public void logMsg(String message, COLOR color){
+        logger.info(Colors.parseColor(Colors.coloredText(message,color)));
+    }
+
     public static FileConfigProcess getConfigs(){
         return config;
     }
