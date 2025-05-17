@@ -2,25 +2,22 @@ package org.waterwood.plugin;
 
 import org.waterwood.adapter.DataAdapter;
 import org.waterwood.enums.COLOR;
-import org.waterwood.enums.TAGS;
 import org.waterwood.io.FileConfiguration;
 import org.waterwood.utils.Colors;
 import org.waterwood.utils.LineFontGenerator;
 import org.waterwood.io.FileConfigProcess;
 import org.waterwood.io.web.Updater;
-import org.waterwood.utils.Translate;
 
 import java.io.File;
 import java.io.IOException;
 import java.util.*;
 import java.util.logging.Logger;
 
-
-public abstract class WaterPlugin  implements Plugin {
+public abstract class WaterPlugin implements Plugin {
     private static Logger logger;
     private static final FileConfigProcess config = new FileConfigProcess();
     private static final FileConfigProcess pluginMessages = new FileConfigProcess();
-    private static final Map<String,FileConfigProcess>  messages = new HashMap<>();
+    private static final Map<String,FileConfigProcess> messages = new HashMap<>();
     private static  FileConfigProcess pluginData;
     private static boolean locale = false;
     public void initialization(){
@@ -32,17 +29,19 @@ public abstract class WaterPlugin  implements Plugin {
                 Logger.getLogger(this.getClass().getName()).warning("Plugin not founded");
             }
         }
-        if (logger == null){ logger = Logger.getLogger(getPluginInfo("name"));}
+        logger = Logger.getLogger(getPluginInfo("name"));
     }
     public WaterPlugin(){
         initialization();
     }
-    public static Logger getLogger(){
+
+    @Override
+    public Logger getLogger(){
         return logger;
     }
 
     public void logMsg(String message){
-        logger.info(Colors.parseColor(message,false));
+        logger.info(Colors.parseColor(message));
     }
 
     public void logMsg(String message, COLOR color){
@@ -52,10 +51,16 @@ public abstract class WaterPlugin  implements Plugin {
     public static FileConfigProcess getConfigs(){
         return config;
     }
+
     public static String getPluginMessage(String path){
         return pluginMessages.getString(path);
     }
-    public String getPluginName(){
+
+    public static String getPluginMessage(String path,Object... args){
+        return pluginMessages.getString(path).formatted(args);
+    }
+
+    public static String getPluginName(){
         return getPluginInfo("name");
     }
 
@@ -65,13 +70,13 @@ public abstract class WaterPlugin  implements Plugin {
     }
 
     @Override
-    public void loadConfig(boolean loadMessage){
+    public void loadConfig(){
         String lang = Locale.getDefault().getLanguage();
         try {
             config.createYmlFileByPath("config",getDefaultFilePath(""));
             loadConfig(lang);
-            if(loadMessage) {
-                locale = "locale".equals(config.getString("player-locale"));
+            locale = "locale".equals(config.getString("player-locale","global"));
+            if(locale){
                 config.createYmlFileByPath("message", getDefaultFilePath(""));
                 messages.put(lang, new FileConfigProcess().loadFile(getDefaultFilePath("message.yml")));
             }
@@ -81,10 +86,6 @@ public abstract class WaterPlugin  implements Plugin {
             getLogger().warning(e.getMessage());
             loadDefaultSource("en");
         }
-    }
-    @Override
-    public void loadConfig(){
-        loadConfig(true);
     }
 
     public void loadConfig(String lang) throws  Exception{
@@ -182,6 +183,7 @@ public abstract class WaterPlugin  implements Plugin {
             }
         });
     }
+
     @Override
     public void checkUpdate(String owner, String repositories, String configVersion, FileConfiguration... configs){
         checkUpdate(owner,repositories);
@@ -206,6 +208,7 @@ public abstract class WaterPlugin  implements Plugin {
     public String getLocale(){
         return config.getString("locale") == null ? "en" : config.getString("locale");
     }
+
     public void loadLocale(String lang){
         if(messages.containsKey(lang)) return;
         try {
@@ -218,22 +221,24 @@ public abstract class WaterPlugin  implements Plugin {
     public static String getMessage(String key,String lang) {
         return locale ? messages.get(lang).getString(key) : getMessage(key);
     }
-    public static String getMessage(String key){
-        return messages.get(Locale.getDefault().getLanguage()).getString(key);
-    }
+    public static String getMessage(String key){return messages.get(Locale.getDefault().getLanguage()).getString(key);}
 
     public static String getPluginInfo(String key){
         return (String)pluginData.get(key);
     }
+
     public void showPluginTitle(String lineTitleDisplay){
         for(String str : LineFontGenerator.parseLineText(lineTitleDisplay,1)) {
-            System.out.printf(Colors.parseColor( "§6%s§r%n"), str);
+            logMsg(Colors.coloredText(str,COLOR.GOLD));
         }
-        System.out.printf(Colors.parseColor("§e%s §6author: §7%s §6version: §7%s%n"), getPluginInfo("name")
-                , getPluginInfo("author"), getPluginInfo("version"));
+        logMsg(Colors.coloredText("Author: %s Version: %s".formatted(
+                getPluginInfo("author"), getPluginInfo("version")),
+                " ",COLOR.GOLD,COLOR.GRAY,COLOR.GOLD,COLOR.GRAY));
     }
-    public String getPluginInfo(){
-        return "§6%s§r §ev§7%s§r".formatted(getPluginInfo("name"), getPluginInfo("version")) +
-                "§6 by: §7%s".formatted( getPluginInfo("author"));
+
+    public static String getPluginInfo(){
+            return Colors.coloredText("%s by:%s v%s".formatted(getPluginName(),
+                            getPluginInfo("author"), getPluginInfo("version")),
+                    " ",COLOR.GRAY,COLOR.GOLD,COLOR.GOLD);
     }
 }

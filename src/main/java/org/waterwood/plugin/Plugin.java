@@ -8,12 +8,9 @@ import java.util.logging.Logger;
 
 public interface Plugin {
     void initialization();
-    static Logger getLogger() {
-        return null;
-    }
     void loadConfig();
     void loadDefaultSource(String lang);
-
+    Logger getLogger();
     /**
      * get default file path depends server type.
      * <b>file must be completed which contains file extension</b>
@@ -21,7 +18,6 @@ public interface Plugin {
      * @return return the <b>adequate file path</b>
      */
     String getDefaultFilePath(String file);
-    void loadConfig(boolean loadMessage);
     void reloadConfig();
     void checkUpdate(String owner, String repositories);
 
