@@ -161,30 +161,30 @@ public class BukkitPlugin extends JavaPlugin implements Plugin {
         getLogger().info(getPluginMessage("checking-update-message"));
         Updater.CheckForUpdate(owner, repositories, DataAdapter.parseVersion(getPluginInfo("version")))
                 .thenAccept(updateInfo -> {
-                    if(updateInfo == null){
-                        getLogger().warning(getPluginMessage("error-check-update-message"));
-                    }else{
-                        if(updateInfo.IS_NEW_VERSION_AVAILABLE()){
-                            if(Boolean.TRUE.equals(config.get("check-update.auto-download"))){
-                                updateInfo.printUpdateInfo();
-                                String link = updateInfo.DOWNLOAD_URL();
-                                logMsg(getPluginMessage("new-version-download-message").formatted(updateInfo.LATEST_VERSION()));
-                                String pathDownload = "plugins/" + getPluginName() + updateInfo.LATEST_VERSION() +".jar";
-                                Updater.downloadFile(link, pathDownload, updateInfo.DOWNLOAD_SIZE()).thenAccept(result -> {
-                                    if(result){
-                                        logMsg(getPluginMessage("successfully-download-message").formatted(pathDownload));
-                                    }else{
-                                        logger.warning(getPluginMessage("error-download-message").formatted(link));
-                                    }
-                                });
+            if(updateInfo == null){
+                getLogger().warning(getPluginMessage("error-check-update-message"));
+            }else{
+                if(updateInfo.IS_NEW_VERSION_AVAILABLE()){
+                    if(Boolean.TRUE.equals(config.get("check-update.auto-download"))){
+                        updateInfo.printUpdateInfo();
+                        String link = updateInfo.DOWNLOAD_URL();
+                        logMsg(getPluginMessage("new-version-download-message").formatted(updateInfo.LATEST_VERSION()));
+                        String pathDownload = "plugins/" + getPluginName() + updateInfo.LATEST_VERSION() +".jar";
+                        Updater.downloadFile(link, pathDownload,updateInfo.DOWNLOAD_SIZE()).thenAccept(result -> {
+                            if(result){
+                                logMsg(getPluginMessage("successfully-download-message").formatted(pathDownload));
                             }else{
-                                logMsg(getPluginMessage("new-version-info-message"));
+                                logger.warning(getPluginMessage("error-download-message").formatted(link));
                             }
-                        }else{
-                            logMsg(getPluginMessage("latest-version-message"));
-                        }
+                        });
+                    }else{
+                        logMsg(getPluginMessage("new-version-info-message"));
                     }
-                });
+                }else{
+                    logMsg(getPluginMessage("latest-version-message"));
+                }
+            }
+        });
     }
 
     @Override
@@ -215,7 +215,7 @@ public class BukkitPlugin extends JavaPlugin implements Plugin {
     public void loadLocale(String lang){
         if(messages.containsKey(lang)) return;
         try {
-            messages.put(lang,new FileConfigProcess().loadFile("message/" + lang + ".yml"));
+            messages.put(lang,new FileConfigProcess().loadFile(getDefaultFilePath("message/" + lang + ".yml")));
             logger.info(getPluginMessage("successfully-load-local-message").formatted(lang));
         }catch (IOException e){
             logger.warning(pluginMessages.getString("fail-find-local-message").formatted(lang));

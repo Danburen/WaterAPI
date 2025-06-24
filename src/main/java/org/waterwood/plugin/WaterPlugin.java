@@ -218,7 +218,7 @@ public abstract class WaterPlugin implements Plugin {
     public void loadLocale(String lang){
         if(messages.containsKey(lang)) return;
         try {
-            messages.put(lang,new FileConfigProcess().loadFile("message/" + lang + ".yml"));
+            messages.put(lang,new FileConfigProcess().loadSource("message/" + lang + ".yml"));
             logger.info(getPluginMessage("successfully-load-local-message").formatted(lang));
         }catch (IOException e){
             logger.warning(pluginMessages.getString("fail-find-local-message").formatted(lang));

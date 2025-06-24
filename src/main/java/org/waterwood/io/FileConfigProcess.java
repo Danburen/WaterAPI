@@ -101,11 +101,12 @@ public class FileConfigProcess extends FileConfiguration {
         }
     }
     @Override
-    public void loadSource(String... paths) throws IOException {
+    public FileConfigProcess loadSource(String... paths) throws IOException {
         if (data == null) data = new HashMap<>();
         for(String path : paths){
             data.putAll(getSourceMapData("/" + path));
         }
+        return this;
     }
 
     public final Object getRaw(String key){

@@ -37,7 +37,7 @@ public abstract class FileConfiguration extends MemoryProcess implements FileCon
     public abstract Map<String,Object> getAllData();
     public abstract Map<String,Object> getFileMapData(File file) throws IOException;
     public abstract FileConfigProcess reload(String resourcePath) throws IOException;
-    public abstract void loadSource(String... path) throws IOException;
+    public abstract FileConfiguration loadSource(String... path) throws IOException;
     @Deprecated
     public final Map<String,String> getStringMap(String path){
         return  getMap(path,String.class);

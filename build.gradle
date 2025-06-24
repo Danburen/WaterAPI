@@ -1,23 +1,13 @@
 apply plugin: 'java'
 apply plugin: 'maven-publish'
-publishing {
-    publications {
-        mavenJava(MavenPublication) {
-            from components.java
-            groupId = 'org.waterwood'
-            artifactId = 'WaterAPI'
-            version = '1.0-SNAPSHOT'
-        }
-    }
-    repositories {
-        mavenLocal() // 发布到本地 Maven 仓库
-    }
-}
 group = 'org.waterwood'
 version = '1.1-SNAPSHOT'
+java {
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(17)
+    }
+}
 
-sourceCompatibility = '17'
-targetCompatibility = '17'
 
 repositories {
     mavenCentral()
@@ -40,10 +30,17 @@ dependencies {
     implementation 'net.luckperms:api:5.4'
     implementation 'org.yaml:snakeyaml:1.29'
     implementation 'com.h2database:h2:2.3.232'
-    compileOnly 'com.velocitypowered:velocity-api:3.3.0-SNAPSHOT'
+    compileOnly 'com.velocitypowered:velocity-api:3.4.0-SNAPSHOT'
     compileOnly "io.papermc.paper:paper-api:1.20-R0.1-SNAPSHOT"
 }
 
 test {
     useJUnitPlatform()
+}
+
+task generateTemplates(type: Copy) {
+    from 'src/main/templates'  // 模板源目录
+    into 'build/generated'     // 输出目录
+    expand(project.properties) // 支持变量替换
+    include '**/*.template'   // 包含特定文件
 }
