@@ -96,13 +96,17 @@ public abstract class WaterPlugin implements Plugin {
 
     public void loadConfig(String lang) throws  Exception{
             config.loadFile(getDefaultFilePath("config.yml"));
-            locale = "locale".equals(config.getString("player-locale"));
+            locale = "locale".equals(config.getString("player-locale", "global"));
+            if(locale){
+                config.createYmlFileByPath("message", getDefaultFilePath(""));
+                messages.put(lang, new FileConfigProcess().loadFile(getDefaultFilePath("message.yml")));
+            }
             pluginMessages.loadSource("locale/" + lang +  ".properties", "default/" + lang + ".properties");
     }
     @Override
     public void reloadConfig(){
         try {
-            loadConfig(config.getString("locale"));
+            loadConfig(config.getString("locale", "global"));
         }catch (Exception e){
             logger.warning("Error when reloading config,Please check config file!");
         }
@@ -224,10 +228,36 @@ public abstract class WaterPlugin implements Plugin {
             logger.warning(pluginMessages.getString("fail-find-local-message").formatted(lang));
         }
     }
+
+    /**
+     * Return the player side message
+     * @param key the key of message
+     * @param lang language of message
+     * @return message
+     */
     public static String getMessage(String key,String lang) {
-        return locale ? messages.get(lang).getString(key) : getMessage(key);
+        if(locale){
+            String msg = messages.get(lang).getString(key, null);
+            if(msg == null){ // fallback
+                msg = getPluginMessage(key);
+            }
+            return msg;
+        }
+        return getMessage(key);
     }
-    public static String getMessage(String key){return messages.get(Locale.getDefault().getLanguage()).getString(key);}
+    /**
+     * Return the  default player side message.
+     * first try finding form local file then from plugin message file as fall back.
+     * @param key the key of message
+     * @return message
+     */
+    public static String getMessage(String key) {
+        String msg = messages.get(Locale.getDefault().getLanguage()).getString(key, null);
+        if(msg == null){ // fallback
+            msg = getPluginMessage(key);
+        }
+        return msg;
+    }
 
     public static String getPluginInfo(String key){
         return (String)pluginData.get(key);
