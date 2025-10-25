@@ -38,7 +38,7 @@ test {
     useJUnitPlatform()
 }
 
-task generateTemplates(type: Copy) {
+tasks.register('generateTemplates', Copy) {
     from 'src/main/templates'  // 模板源目录
     into 'build/generated'     // 输出目录
     expand(project.properties) // 支持变量替换
