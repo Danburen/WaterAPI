@@ -34,6 +34,11 @@ public abstract class Updater extends WebIO {
             String latestJSON = sendGetRequest(url);
             try {
                 JsonObject jsonObject = JsonParser.parseString(latestJSON).getAsJsonObject();
+                String tagName = jsonObject.get("tag_name").getAsString();
+                if (tagName.contains("-alpha") || tagName.contains("-beta") || tagName.contains("-rc")) {
+                    return new UpdateINFO();
+                }
+
                 String downloadLink = null;
                 long downloadSize = 0;
                 JsonArray assets = jsonObject.getAsJsonArray("assets");
@@ -42,16 +47,15 @@ public abstract class Updater extends WebIO {
                     downloadSize = asset.getAsJsonObject().get("size").getAsLong();
                     if (downloadLink != null) break;
                 }
-                String latestVersion = jsonObject.get("tag_name").getAsString();
-                double latest = DataAdapter.parseVersion(latestVersion);
+                double latest = DataAdapter.parseVersion(tagName);
                 if (currentVer >= latest) {
                     return new UpdateINFO();
                 } else {
-                    int[] version = Parser.parseVersionToArray(latestVersion);
+                    int[] version = Parser.parseVersionToArray(tagName);
                     int major = version[0];
                     int minor = version[1];
                     int patch = version[2];
-                    return new UpdateINFO(downloadLink,downloadSize,latestVersion,true,
+                    return new UpdateINFO(downloadLink,downloadSize,tagName,true,
                             ChangelogGetter.getChangelog(owner,repo,major,minor,patch,
                                     Locale.getDefault().getLanguage()));
                 }
