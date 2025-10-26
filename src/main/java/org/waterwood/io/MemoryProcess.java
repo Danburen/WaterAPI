@@ -6,7 +6,6 @@ import java.security.CodeSource;
 import java.security.ProtectionDomain;
 
 public abstract class MemoryProcess {
-
     /**
      * split a parent file from jar to File system,split like [xxxx][FileName]
      * @param splitStr split str "xxx" + file name

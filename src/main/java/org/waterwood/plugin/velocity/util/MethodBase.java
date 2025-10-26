@@ -6,6 +6,7 @@ import org.waterwood.plugin.WaterPlugin;
 import java.util.logging.Logger;
 
 public class MethodBase {
+    private static final WaterPlugin plugin = WaterPlugin.getInstance();
     protected static FileConfiguration getConfigs(){
         return WaterPlugin.getConfigs();
     }
@@ -16,9 +17,9 @@ public class MethodBase {
         return WaterPlugin.getInstance().getLogger();
     }
     protected static String getMessage(String message){
-        return WaterPlugin.getMessage(message);
+        return WaterPlugin.getInstance().getMessage(message);
     }
     protected static String getMessage(String message,String language){
-        return WaterPlugin.getMessage(message,language);
+        return WaterPlugin.getInstance().getMessage(message,language);
     }
 }

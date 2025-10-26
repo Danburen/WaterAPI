@@ -1,8 +1,12 @@
 package org.waterwood.plugin;
 
+import lombok.Getter;
 import org.waterwood.adapter.DataAdapter;
 import org.waterwood.enums.COLOR;
 import org.waterwood.io.FileConfiguration;
+import org.waterwood.service.LoggerService;
+import org.waterwood.service.MessageService;
+import org.waterwood.service.impl.MessageServiceImpl;
 import org.waterwood.utils.Colors;
 import org.waterwood.utils.LineFontGenerator;
 import org.waterwood.io.FileConfigProcess;
@@ -14,44 +18,41 @@ import java.util.*;
 import java.util.logging.Logger;
 
 public abstract class WaterPlugin implements Plugin {
-    private static Logger logger;
+    protected static LoggerService loggerService;
     private static final FileConfigProcess config = new FileConfigProcess();
     private static final FileConfigProcess pluginMessages = new FileConfigProcess();
-    private static final Map<String,FileConfigProcess> messages = new HashMap<>();
-    private static  FileConfigProcess pluginData;
-    private static boolean locale = false;
+    private static final FileConfigProcess pluginData = new FileConfigProcess();
+    private MessageService msgService;
+    private static boolean playerLocal = false;
+    @Getter
     private static WaterPlugin instance = null;
+
+    private static final String LOCAL_LANG = Locale.getDefault().getLanguage();
     public void initialization(){
-        if(pluginData == null){
-            try {
-                pluginData = new FileConfigProcess();
-                pluginData.loadSource("plugin.yml");
-            }catch (IOException e){
-                Logger.getLogger(this.getClass().getName()).warning("Plugin not founded");
-            }
+        try {
+            pluginData.loadSource("plugin.yml");
+        }catch (IOException e){
+            Logger.getLogger(this.getClass().getName()).warning("Plugin not founded");
         }
-        logger = Logger.getLogger(getPluginInfo("name"));
+        loggerService = new LoggerService(getPluginInfo("name"));
+        this.msgService = new MessageServiceImpl(this);
     }
     public WaterPlugin(){
         instance = this;
         initialization();
     }
 
-    public static WaterPlugin getInstance(){
-        return instance;
-    }
-
     @Override
     public Logger getLogger(){
-        return logger;
+        return loggerService.getLogger();
     }
 
     public void logMsg(String message){
-        logger.info(Colors.parseColor(message));
+        loggerService.logMessage(message);
     }
 
     public void logMsg(String message, COLOR color){
-        logger.info(Colors.parseColor(Colors.coloredText(message,color)));
+        loggerService.logMessage(message,color);
     }
 
     public static FileConfigProcess getConfigs(){
@@ -77,15 +78,8 @@ public abstract class WaterPlugin implements Plugin {
 
     @Override
     public void loadConfig(){
-        String lang = Locale.getDefault().getLanguage();
         try {
-            config.createYmlFileByPath("config",getDefaultFilePath(""));
-            loadConfig(lang);
-            locale = "locale".equals(config.getString("player-locale","global"));
-            if(locale){
-                config.createYmlFileByPath("message", getDefaultFilePath(""));
-                messages.put(lang, new FileConfigProcess().loadFile(getDefaultFilePath("message.yml")));
-            }
+            loadConfigs(LOCAL_LANG);
         }catch(Exception e){
             getLogger().warning("Error when load config file , please check your config file.");
             getLogger().warning("Please check if there are any formatting issues in file(config.yml & message.yml)");
@@ -94,21 +88,26 @@ public abstract class WaterPlugin implements Plugin {
         }
     }
 
-    public void loadConfig(String lang) throws  Exception{
-            config.loadFile(getDefaultFilePath("config.yml"));
-            locale = "locale".equals(config.getString("player-locale", "global"));
-            if(locale){
-                config.createYmlFileByPath("message", getDefaultFilePath(""));
-                messages.put(lang, new FileConfigProcess().loadFile(getDefaultFilePath("message.yml")));
-            }
-            pluginMessages.loadSource("locale/" + lang +  ".properties", "default/" + lang + ".properties");
+    public void loadConfigs(String lang) throws  Exception{
+        config.createYmlFileByPath("config",getDefaultFilePath(""));
+        config.loadFile(getDefaultFilePath("config.yml"));
+        playerLocal = "locale".equals(config.getString("player-locale", "global"));
+        config.createYmlFileByPath("message", getDefaultFilePath(""));
+
+        FileConfigProcess messageConfig = new FileConfigProcess();
+        if(playerLocal){
+            msgService.loadFromResource("message/" + lang + ".yml", lang);
+        }else{
+            msgService.loadFromPath(getDefaultFilePath("message.yml"));
+        }
+        pluginMessages.loadSource("locale/" + lang +  ".properties", "default/" + lang + ".properties");
     }
     @Override
     public void reloadConfig(){
         try {
-            loadConfig(config.getString("locale", "global"));
+            loadConfigs(config.getString("locale", "en"));
         }catch (Exception e){
-            logger.warning("Error when reloading config,Please check config file!");
+            loggerService.warning("Error when reloading config,Please check config file!");
         }
     }
 
@@ -118,7 +117,7 @@ public abstract class WaterPlugin implements Plugin {
         try {
             fcp.loadSource(sourcePath);
         } catch (IOException e) {
-            logger.warning("Error loading source " + sourcePath);
+            loggerService.warning("Error loading source " + sourcePath);
         }
         return fcp;
     }
@@ -139,7 +138,7 @@ public abstract class WaterPlugin implements Plugin {
             File file = new File(getDefaultFilePath(fileString));
             return fcp.loadFile(file);
         } catch (IOException e) {
-            logger.warning("Error loading file " + fileString);
+            loggerService.warning("Error loading file " + fileString);
             e.printStackTrace();
         }
         return fcp;
@@ -181,7 +180,7 @@ public abstract class WaterPlugin implements Plugin {
                             if(result){
                                 logMsg(getPluginMessage("successfully-download-message").formatted(pathDownload));
                             }else{
-                                logger.warning(getPluginMessage("error-download-message").formatted(link));
+                                loggerService.warning(getPluginMessage("error-download-message").formatted(link));
                             }
                         });
                     }else{
@@ -211,7 +210,7 @@ public abstract class WaterPlugin implements Plugin {
             }
         }
         if(isOutOfData){
-            logger.warning(getPluginMessage("config-file-out-date-message").formatted(outDataFileName));
+            loggerService.warning(getPluginMessage("config-file-out-date-message").formatted(outDataFileName));
         }
     }
     @Override
@@ -220,45 +219,18 @@ public abstract class WaterPlugin implements Plugin {
     }
 
     public void loadLocale(String lang){
-        if(messages.containsKey(lang)) return;
-        try {
-            messages.put(lang,new FileConfigProcess().loadSource("message/" + lang + ".yml"));
-            logger.info(getPluginMessage("successfully-load-local-message").formatted(lang));
-        }catch (IOException e){
-            logger.warning(pluginMessages.getString("fail-find-local-message").formatted(lang));
-        }
+        if(msgService.isLangExist(lang)) return;
+        msgService.loadFromResource("message/" + lang + ".yml", lang);
+        loggerService.logMessage(getPluginMessage("successfully-load-local-message").formatted(lang));
     }
 
-    /**
-     * Return the player side message
-     * @param key the key of message
-     * @param lang language of message
-     * @return message
-     */
-    public static String getMessage(String key,String lang) {
-        if(locale){
-            String msg = messages.get(lang).getString(key, null);
-            if(msg == null){ // fallback
-                msg = getPluginMessage(key);
-            }
-            return msg;
-        }
-        return getMessage(key);
+    public String getMessage(String key,String lang) {
+        return msgService.getLocalMessage(key, lang);
     }
-    /**
-     * Return the  default player side message.
-     * first try finding form local file then from plugin message file as fall back.
-     * @param key the key of message
-     * @return message
-     */
-    public static String getMessage(String key) {
-        String msg = messages.get(Locale.getDefault().getLanguage()).getString(key, null);
-        if(msg == null){ // fallback
-            msg = getPluginMessage(key);
-        }
-        return msg;
-    }
+    public String getMessage(String key) {
+        return msgService.getMessage(key);
 
+    }
     public static String getPluginInfo(String key){
         return (String)pluginData.get(key);
     }
@@ -276,5 +248,9 @@ public abstract class WaterPlugin implements Plugin {
             return Colors.coloredText("%s by:%s v%s".formatted(getPluginName(),
                             getPluginInfo("author"), getPluginInfo("version")),
                     " ",COLOR.GRAY,COLOR.GOLD,COLOR.GOLD);
+    }
+
+    public LoggerService getLoggerService() {
+        return loggerService;
     }
 }
