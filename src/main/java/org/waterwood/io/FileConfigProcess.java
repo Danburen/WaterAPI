@@ -2,6 +2,7 @@ package org.waterwood.io;
 
 import org.jspecify.annotations.NonNull;
 import org.waterwood.adapter.DataAdapter;
+import org.waterwood.utils.DebugUtil;
 import org.yaml.snakeyaml.DumperOptions;
 import org.yaml.snakeyaml.Yaml;
 
@@ -120,6 +121,7 @@ public class FileConfigProcess extends FileConfiguration {
     @Override
     public final @NonNull <T> T get(String path, T defaultVal){
         Object value = get(path,data);
+        if(value == null) DebugUtil.debug("Can't find PATH %s".formatted(path));
         return DataAdapter.toValue(value,defaultVal);
     }
 
